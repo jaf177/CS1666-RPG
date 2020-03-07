@@ -45,8 +45,22 @@ SDL_GLContext gContext;//OpenGL context
 std::vector<SDL_Texture*> gTex;
 void handleMain();
 
+/*
+OPTIONS MENU
+*/
+const int OPTION_max_volume = 10;
+const int OPTION_min_volume = 0;
+int OPTION_volume = 6;
+const int OPTION_max_difficulty = 10;
+const int OPTION_min_difficulty = 1;
+int OPTION_difficulty = 5;
+bool OPTION_randomMaps = false;
 
+/*
+OPTIONS MENU
+*/
 int MAP_INDEX = 0;
+
 
 enum SCENE_CHANGE
 {
@@ -305,14 +319,19 @@ void close()
 	IMG_Quit();
 	SDL_Quit();
 }
+int adjustVolume(int initial)
+{
+	return initial * OPTION_volume / 6;
+}
 void startMusic(string song, int volume)
 {
 	gMusic = Mix_LoadMUS(song.c_str());
 	if (gMusic == NULL)
 		std::cout << "Failed to load music" << std::endl;
 	Mix_PlayMusic(gMusic, -1);
-	Mix_VolumeMusic(volume);
+	Mix_VolumeMusic(adjustVolume(volume));
 }
+
 
 int playCredits() {
 	
@@ -495,7 +514,34 @@ void GameOverTransition()
 	SDL_SetRenderDrawColor(gRenderer, 0, 255, 0, 255);
 	SDL_Delay(200);
 }
-
+void deleteAll(vector<Button *> buttons)
+{
+	for (auto i : buttons)
+	{
+		delete(i);
+	}
+}
+void flashButton(SDL_Texture* one, SDL_Texture* two, Button* i, Mix_Chunk* sound)
+{
+	int flashTimer = 210;
+	Mix_PlayChannel(-1, sound, 0);
+	Mix_Volume(-1, adjustVolume(MIX_MAX_VOLUME));
+	SDL_RenderCopy(gRenderer, one, NULL, &i->rect);
+	SDL_RenderPresent(gRenderer);
+	SDL_Delay(flashTimer);
+	SDL_RenderCopy(gRenderer, two, NULL, &i->rect);
+	SDL_RenderPresent(gRenderer);
+	SDL_Delay(flashTimer);
+	SDL_RenderCopy(gRenderer, one, NULL, &i->rect);
+	SDL_RenderPresent(gRenderer);
+	SDL_Delay(flashTimer);
+	SDL_RenderCopy(gRenderer, two, NULL, &i->rect);
+	SDL_RenderPresent(gRenderer);
+	SDL_Delay(flashTimer);
+	SDL_RenderCopy(gRenderer, one, NULL, &i->rect);
+	SDL_RenderPresent(gRenderer);
+	SDL_Delay(flashTimer);
+}
 int characterCreateScreen()
 {
 	soundMenuSelect = Mix_LoadWAV("Audio/SoundEffect_MenuSelect.wav");
@@ -580,8 +626,6 @@ int characterCreateScreen()
 	SDL_Texture* downPress = loadImage("Images/UI/CreateScreen/pointDownArrow_Pressed.png");
 	SDL_Texture* upLocked = loadImage("Images/UI/CreateScreen/pointUpArrow_Locked.png");
 	SDL_Texture* downLocked = loadImage("Images/UI/CreateScreen/pointDownArrow_Locked.png");
-	SDL_Texture* upUnLocked = loadImage("Images/UI/CreateScreen/pointUpArrow.png");
-	SDL_Texture* downUnLocked = loadImage("Images/UI/CreateScreen/pointUpArrow.png");
 
 	SDL_Texture* character = loadImage("Images/Player/Idle_Down.png");
 
@@ -651,25 +695,9 @@ int characterCreateScreen()
 					{
 					if (i->type == "back")
 					{
-						Mix_PlayChannel(-1, soundMenuSelect, 0);
-							SDL_RenderCopy(gRenderer, back_selected, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, back, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, back_selected, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, back, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, back_selected, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							for (auto i : buttons) {
-								delete(i);
-							}
+						flashButton(back_selected, back, i, soundMenuSelect);
+						deleteAll(buttons);
+							
 							background.free();
 							Mix_HaltMusic();
 							return GOTO_MAIN;
@@ -681,22 +709,7 @@ int characterCreateScreen()
 							{
 								if (nameInputText == "nlf4" || nameInputText != "")
 								{
-									Mix_PlayChannel(-1, soundMenuSelect, 0);
-									SDL_RenderCopy(gRenderer, start_selected, NULL, &i->rect);
-									SDL_RenderPresent(gRenderer);
-									SDL_Delay(300);
-									SDL_RenderCopy(gRenderer, start, NULL, &i->rect);
-									SDL_RenderPresent(gRenderer);
-									SDL_Delay(300);
-									SDL_RenderCopy(gRenderer, start_selected, NULL, &i->rect);
-									SDL_RenderPresent(gRenderer);
-									SDL_Delay(300);
-									SDL_RenderCopy(gRenderer, start, NULL, &i->rect);
-									SDL_RenderPresent(gRenderer);
-									SDL_Delay(300);
-									SDL_RenderCopy(gRenderer, start_selected, NULL, &i->rect);
-									SDL_RenderPresent(gRenderer);
-									SDL_Delay(300);
+									flashButton(start_selected, start, i, soundMenuSelect);
 									onCharacterCreate = false;
 									if (nameInputText == "nfl4" || nameInputText == "nlf4")
 										player1 = new Player(nameInputText, 10, 10, 10, 10, 10);
@@ -704,10 +717,7 @@ int characterCreateScreen()
 										player1 = new Player(nameInputText, strength, intelligence, dexterity, constitution, faith);
 									std::cout << std::string(*player1); //displays player 1
 									//make Character Object, validate, return to main
-									for (auto i : buttons)
-									{
-										delete(i);
-									}
+									deleteAll(buttons);
 									background.free();
 									Mix_HaltMusic();
 									return GOTO_INGAME;
@@ -715,12 +725,14 @@ int characterCreateScreen()
 								else
 								{
 									Mix_PlayChannel(-1, soundButtonFailure, 0);
+									Mix_Volume(-1, adjustVolume(MIX_MAX_VOLUME));
 									errorInputText = "Enter Your Name!";
 								}
 							}
 							else
 							{
 								Mix_PlayChannel(-1, soundButtonFailure, 0);
+								Mix_Volume(-1, adjustVolume(MIX_MAX_VOLUME));
 								errorInputText = "Points Remaining!";
 								break; //not valid to start, break out of for loop
 							}
@@ -730,11 +742,13 @@ int characterCreateScreen()
 							if (pointsToAllocate > 0)
 							{
 								Mix_PlayChannel(-1, soundButtonSuccess_Up, 0);
+								Mix_Volume(-1, adjustVolume(MIX_MAX_VOLUME));
 								deltaAttribute = 1;
 							}
 							else
 							{
 								Mix_PlayChannel(-1, soundButtonFailure, 0);
+								Mix_Volume(-1, adjustVolume(MIX_MAX_VOLUME));
 								errorInputText = "No Points Remaining!";
 								deltaAttribute = 0;
 								
@@ -745,11 +759,13 @@ int characterCreateScreen()
 							if (i->locked)
 							{
 								Mix_PlayChannel(-1, soundButtonFailure, 0);
+								Mix_Volume(-1, adjustVolume(MIX_MAX_VOLUME));
 								deltaAttribute = 0;
 							}
 							else
 							{
 								Mix_PlayChannel(-1, soundButtonSuccess_Down, 0);
+								Mix_Volume(-1, adjustVolume(MIX_MAX_VOLUME));
 								deltaAttribute = -1;
 							}					
 						}
@@ -829,6 +845,7 @@ int characterCreateScreen()
 				//remove char if backspace
 				if (e.key.keysym.sym == SDLK_BACKSPACE && nameInputText.length() > 0) {
 					Mix_PlayChannel(-1, gBSound, 0);
+					Mix_Volume(-1, adjustVolume(MIX_MAX_VOLUME));
 					nameInputText.pop_back();
 				}
 				//Move on by pressing enter
@@ -836,6 +853,7 @@ int characterCreateScreen()
 						if (nameInputText == "nfl4" || nameInputText == "nlf4" || pointsToAllocate == 0) {
 							if (nameInputText != "") {
 								Mix_PlayChannel(-1, gBSound, 0);
+								Mix_Volume(-1, adjustVolume(MIX_MAX_VOLUME));
 								onCharacterCreate = false;
 								if (nameInputText == "nfl4" || nameInputText == "nlf4"){
 									player1 = new Player(nameInputText, 10, 10, 10, 10, 10);//player1->setAll(nameInputText, 10, 10, 10, 10, 10);
@@ -855,9 +873,7 @@ int characterCreateScreen()
 								}
 								std::cout << std::string(*player1); //displays player 1
 								//make Character Object, validate, return to main
-								for (auto i : buttons) {
-									delete(i);
-								}
+								deleteAll(buttons);
 								background.free();
 								Mix_HaltMusic();
 								return GOTO_INGAME;
@@ -877,6 +893,7 @@ int characterCreateScreen()
 				//set length limit to arbitrariy be 11 (fits textbox about right, depends on what user enters)
 				if (nameInputText.length() < 11) {
 					Mix_PlayChannel(-1, gBSound, 0);
+					Mix_Volume(-1, adjustVolume(MIX_MAX_VOLUME));
 					nameInputText += e.text.text;
 				}
 			}
@@ -1090,53 +1107,18 @@ int handlePauseMenu(bool inPauseMenu, std::vector<Player*> allPlayers, std::vect
 					//if mouse is clicked inside a button
 					if (((mouseX >= i->x) && (mouseX <= (i->x + i->w))) && ((mouseY >= i->y) && (mouseY <= (i->y + i->h))))
 					{
-						Mix_PlayChannel(-1, soundMenuSelect, 0);
 						if (i->type == "continue")
 						{
-							SDL_RenderCopy(gRenderer, continuebutton_selected, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, continuebutton, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, continuebutton_selected, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, continuebutton, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, continuebutton_selected, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							for (auto i : buttons)
-							{
-								delete(i);
-							}
+							flashButton(continuebutton_selected, continuebutton, i, soundMenuSelect);
+							deleteAll(buttons);
 							SDL_DestroyTexture(background);
 							inPauseMenu = false;
 							return GOTO_INGAME;
 						}
 						else if (i->type == "exit")
 						{
-							SDL_RenderCopy(gRenderer, exitbutton_selected, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, exitbutton, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, exitbutton_selected, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, exitbutton, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, exitbutton_selected, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							for (auto i : buttons)
-							{
-								delete(i);
-							}
+							flashButton(exitbutton_selected, exitbutton, i, soundMenuSelect);
+							deleteAll(buttons);
 							SDL_DestroyTexture(background);
 							inPauseMenu = false;
 							return GOTO_MAIN;
@@ -1772,11 +1754,251 @@ void printShaderLog(GLuint shader)
 }
 int optionsScreen()
 {
+	soundMenuSelect = Mix_LoadWAV("Audio/SoundEffect_MenuSelect.wav");
+	if (soundMenuSelect == NULL)
+	{
+		printf("Failed to load Button sound effect! SDL_mixer Error: %s\n", Mix_GetError());
+	}
+	std::vector<Button*> buttons;
+
+	SDL_Texture* title = loadImage("Images/UI/OptionsScreen/title.png");
+	SDL_Rect space = { 160, 50, 400, 72 };
+	
+
+	// Initialize Variables
+	bool onOptions = true;
+
+	int mouseX = -1;
+	int mouseY = -1;
+
+
+
+	SDL_Rect volumeTextRectangle = { 305, 150, 0, 0 };
+	SDL_Rect difficultyTextRectangle = { 285, 250, 0, 0 };
+	SDL_Rect mapsTextRectangle = { 285, 350, 0, 0 };
+
+	SDL_Color textColor = { 112, 96, 80, 0 };
+	SDL_Texture* leftPress = loadImage("Images/UI/OptionsScreen/pointLeftArrow_Pressed.png");
+	SDL_Texture* rightPress = loadImage("Images/UI/OptionsScreen/pointRightArrow_Pressed.png");
+	SDL_Texture* leftLocked = loadImage("Images/UI/OptionsScreen/pointLeftArrow_Locked.png");
+	SDL_Texture* rightLocked = loadImage("Images/UI/OptionsScreen/pointRightArrow_Locked.png");
+	SDL_Texture* onLocked = loadImage("Images/UI/OptionsScreen/OnButton_Locked.png");
+	SDL_Texture* offLocked = loadImage("Images/UI/OptionsScreen/OffButton_Locked.png");
+	
+
+	//Establish Visuals
+	buttons.push_back(new Button("left", 225, 140, 35, 45, "Images/UI/OptionsScreen/pointLeftArrow.png", "volume", gRenderer));
+	buttons.push_back(new Button("right", 465, 140, 35, 45, "Images/UI/OptionsScreen/pointRightArrow.png", "volume", gRenderer));
+	buttons.push_back(new Button("left", 225, 240, 35, 45, "Images/UI/OptionsScreen/pointLeftArrow.png", "difficulty", gRenderer));
+	buttons.push_back(new Button("right", 465, 240, 35, 45, "Images/UI/OptionsScreen/pointRightArrow.png", "difficulty", gRenderer));
+	buttons.push_back(new Button("on", 125, 340, 140, 45, "Images/UI/OptionsScreen/OnButton.png", "maps", gRenderer));
+	buttons.push_back(new Button("off", 465, 340, 140, 45, "Images/UI/OptionsScreen/OffButton.png", "maps", gRenderer));
+	buttons.push_back(new Button("back", 450, 650, 230, 56, "Images/UI/OptionsScreen/BackButton.png", "", gRenderer));
+
+	SDL_Texture* back = loadImage("Images/UI/CreateScreen/BackButton.png");
+	SDL_Texture* back_selected = loadImage("Images/UI/CreateScreen/BackButton_Selected.png");
+	// Load Background
+	LoadTexture background;
+	background.loadFromFile("Images/UI/OptionsScreen/OptionsNoButtons.png", gRenderer);
+	background.renderBackground(gRenderer);
+
+	gBSound = Mix_LoadWAV("Audio/BSound.wav");
+	soundButtonFailure = Mix_LoadWAV("Audio/SoundEffect_ButtonFailure.wav");
+	soundButtonSuccess_Up = Mix_LoadWAV("Audio/SoundEffect_ButtonSuccess_Up.wav");
+	soundButtonSuccess_Down = Mix_LoadWAV("Audio/SoundEffect_ButtonSuccess_Down.wav");
+	if (gBSound == NULL || soundButtonFailure == NULL || soundButtonSuccess_Up == NULL || soundButtonSuccess_Down == NULL)
+	{
+		printf("Failed to load Button sound effect! SDL_mixer Error: %s\n", Mix_GetError());
+	}
+
+	SDL_Event e;
+	while (onOptions)
+	{
+		while (SDL_PollEvent(&e))
+		{
+			if (e.type == SDL_QUIT)
+			{
+				Mix_HaltMusic();
+				return GOTO_EXIT; //end game
+			}
+			if (e.button.button == (SDL_BUTTON_LEFT) && e.type == SDL_MOUSEBUTTONDOWN)
+			{
+				int mouseX, mouseY;
+				SDL_GetMouseState(&mouseX, &mouseY);
+				int deltaAttribute;
+				for (auto i : buttons)
+				{
+					//if mouse is clicked inside a button
+					if (((mouseX >= i->x) && (mouseX <= (i->x + i->w))) &&
+						((mouseY >= i->y) && (mouseY <= (i->y + i->h))))
+					{
+						if (i->type == "back")
+						{
+							flashButton(back_selected, back, i, soundMenuSelect);
+							deleteAll(buttons);
+							background.free();
+							return GOTO_MAIN;
+						}
+						i->pressed = 5;
+						
+						if (i->type == "right")
+						{
+								Mix_PlayChannel(-1, soundButtonSuccess_Up, 0);
+								Mix_Volume(-1, adjustVolume(MIX_MAX_VOLUME));
+								deltaAttribute = 1;
+						}
+						else if (i->type == "left")
+						{
+								Mix_PlayChannel(-1, soundButtonSuccess_Down, 0);
+								Mix_Volume(-1, adjustVolume(MIX_MAX_VOLUME));
+								deltaAttribute = -1;
+						}
+
+						if (i->attribute == "volume")
+						{
+							if ((deltaAttribute + OPTION_volume) <= OPTION_max_volume && (deltaAttribute + OPTION_volume) >= OPTION_min_volume)
+							{
+								OPTION_volume += (2 * deltaAttribute);
+								Mix_VolumeMusic(adjustVolume(MIX_MAX_VOLUME/8));
+								/*
+								OPTION_randomMaps = true;
+								OPTION_randomMaps = false;
+								*/
+							}
+						}
+						else if (i->attribute == "difficulty")
+						{
+							if ((deltaAttribute + OPTION_difficulty) <= OPTION_max_difficulty && (deltaAttribute + OPTION_difficulty) >= OPTION_min_difficulty)
+							{
+								OPTION_difficulty += deltaAttribute;
+							}
+						}
+						else if (i->attribute == "maps")
+						{
+							if(i->type == "on")
+							{
+								OPTION_randomMaps = true;
+							}
+							else if (i->type == "off")
+							{
+								OPTION_randomMaps = false;
+							}
+						}
+						break;
+					}
+				}
+			}
+
+
+		}
+
+		background.renderBackground(gRenderer);
+		//Renders buttons and shows pressed image if pressed
+		for (auto i : buttons)
+		{
+			if (i->attribute == "volume")
+			{
+				if (i->type == "left")
+				{
+					if (OPTION_volume == OPTION_min_volume)
+					{
+						i->locked = true;
+					}
+					else i->locked = false;
+				}
+				else
+				{
+					if (OPTION_volume == OPTION_max_volume)
+					{
+						i->locked = true;
+					}
+					else i->locked = false;
+				}
+			}
+			else if (i->attribute == "difficulty")
+			{
+				if (i->type == "left")
+				{
+					if (OPTION_difficulty == OPTION_min_difficulty)
+					{
+						i->locked = true;
+					}
+					else i->locked = false;
+				}
+				else
+				{
+					if (OPTION_difficulty == OPTION_max_difficulty)
+					{
+						i->locked = true;
+					}
+					else i->locked = false;
+				}
+			}
+			else if (i->attribute == "maps")
+			{
+				if (i->type == "on")
+				{
+					if (OPTION_randomMaps)
+						i->locked = false;
+					else i->locked = true;
+				}
+				else
+				{
+					if (OPTION_randomMaps)
+						i->locked = true;
+					else i->locked = false;
+				}
+			}
+			if (!i->locked)
+			{
+				if (i->pressed <= 0 || i->attribute == "")
+					SDL_RenderCopy(gRenderer, i->texture, NULL, &i->rect);
+				else
+				{
+					if (i->type == "left")
+						SDL_RenderCopy(gRenderer, leftPress, NULL, &i->rect);
+					else if(i->type == "right")
+						SDL_RenderCopy(gRenderer, rightPress, NULL, &i->rect);
+					else SDL_RenderCopy(gRenderer, i->texture, NULL, &i->rect);
+					i->pressed--;
+				}
+			}
+			else
+			{
+				if (i->type == "left")
+					SDL_RenderCopy(gRenderer, leftLocked, NULL, &i->rect);
+				else if (i->type == "right")
+					SDL_RenderCopy(gRenderer, rightLocked, NULL, &i->rect);
+				else if (i->type == "on")
+					SDL_RenderCopy(gRenderer, onLocked, NULL, &i->rect);
+				else if (i->type == "off")
+					SDL_RenderCopy(gRenderer, offLocked, NULL, &i->rect);
+			}
+		}
+
+		std::string volumeString = "Volume : " + std::to_string(OPTION_volume);
+		std::string difficultyString = "Difficulty : " + std::to_string(OPTION_difficulty);
+		std::string mapsString = "Random Maps";
+
+		SDL_RenderCopy(gRenderer, title, NULL, &space);
+		renderText(volumeString.c_str(), &volumeTextRectangle, &textColor);
+		renderText(difficultyString.c_str(), &difficultyTextRectangle, &textColor);
+		renderText(mapsString.c_str(), &mapsTextRectangle, &textColor);
+		SDL_RenderPresent(gRenderer);
+		SDL_Delay(16);
+	}
+
+
+
+
+
+
 	return GOTO_MAIN;
 }
 int mainMenu()
 {
-	startMusic("Audio/Song_MainMenu_New.wav", MIX_MAX_VOLUME / 5);
+	if(!Mix_PlayingMusic())
+		startMusic("Audio/Song_MainMenu_New.wav", MIX_MAX_VOLUME / 5);
 	soundMenuSelect = Mix_LoadWAV("Audio/SoundEffect_MenuSelect.wav");
 	if (soundMenuSelect == NULL)
 	{
@@ -1836,102 +2058,34 @@ int mainMenu()
 					//if mouse is clicked inside a button
 					if (((mouseX >= i->x) && (mouseX <= (i->x + i->w))) && ((mouseY >= i->y) && (mouseY <= (i->y + i->h))))
 					{
-						Mix_PlayChannel(-1, soundMenuSelect, 0);
 						if (i->type == "singleplayer")
 						{
-							SDL_RenderCopy(gRenderer, singleplayer_selected, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, singleplayer, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);							
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, singleplayer_selected, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);							
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, singleplayer, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);							
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, singleplayer_selected, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);							
-							SDL_Delay(300);
-							for (auto i : buttons)
-							{
-								delete(i);
-							}
+							flashButton(singleplayer_selected, singleplayer, i, soundMenuSelect);
+							deleteAll(buttons);
 							SDL_DestroyTexture(background);
 							run = false;
 							return GOTO_SOLO; // GO TO CHARACTER SELECT
 						}
 						else if (i->type == "options")
 						{
-							SDL_RenderCopy(gRenderer, options_selected, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, options, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, options_selected, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, options, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, options_selected, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							for (auto i : buttons)
-							{
-								delete(i);
-							}
+							flashButton(options_selected, options, i, soundMenuSelect);
+							deleteAll(buttons);
 							SDL_DestroyTexture(background);
 							run = false;
 							return GOTO_OPTIONS; // GO TO OPTIONS
 						}
 						else if (i->type == "credits")
 						{
-							SDL_RenderCopy(gRenderer, credits_selected, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, credits, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, credits_selected, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, credits, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, credits_selected, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							for (auto i : buttons)
-							{
-								delete(i);
-							}
+							flashButton(credits_selected, credits, i, soundMenuSelect);
+							deleteAll(buttons);
 							SDL_DestroyTexture(background);
 							run = false;
 							return GOTO_CREDITS; // GO TO CREDITS
 						}
 						else if (i->type == "exit")
 						{
-							SDL_RenderCopy(gRenderer, exit_selected, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, exit, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, exit_selected, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, exit, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							SDL_RenderCopy(gRenderer, exit_selected, NULL, &i->rect);
-							SDL_RenderPresent(gRenderer);
-							SDL_Delay(300);
-							for (auto i : buttons) {
-								delete(i);
-							}
+							flashButton(exit_selected, exit, i, soundMenuSelect);
+							deleteAll(buttons);
 							SDL_DestroyTexture(background);
 							run = false;
 							return GOTO_EXIT; // EXIT

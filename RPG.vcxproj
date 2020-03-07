@@ -183,11 +183,6 @@
     <ClCompile Include="Classes\AI\MPS_TaskAssignment.cpp" />
     <ClCompile Include="Classes\aStar.cpp" />
     <ClCompile Include="Classes\Attribute.cpp" />
-    <ClCompile Include="Classes\Attributes\Constitution.cpp" />
-    <ClCompile Include="Classes\Attributes\Dexterity.cpp" />
-    <ClCompile Include="Classes\Attributes\Faith.cpp" />
-    <ClCompile Include="Classes\Attributes\Intelligence.cpp" />
-    <ClCompile Include="Classes\Attributes\Strength.cpp" />
     <ClCompile Include="Classes\Button.cpp" />
     <ClCompile Include="Classes\Character.cpp" />
     <ClCompile Include="Classes\Cluster.cpp" />
@@ -195,14 +190,11 @@
     <ClCompile Include="Classes\Enemy.cpp" />
     <ClCompile Include="Classes\Graphics.cpp" />
     <ClCompile Include="Classes\Helper.cpp" />
-    <ClCompile Include="Classes\Inventory.cpp" />
-    <ClCompile Include="Classes\Item.cpp" />
     <ClCompile Include="Classes\LoadTexture.cpp" />
     <ClCompile Include="Classes\mainGame.cpp" />
     <ClCompile Include="Classes\Path.cpp" />
     <ClCompile Include="Classes\Player.cpp" />
     <ClCompile Include="Classes\Point.cpp" />
-    <ClCompile Include="Classes\Resistance.cpp" />
     <ClCompile Include="Classes\ResourceManager\FontData.cpp" />
     <ClCompile Include="Classes\ResourceManager\ResourceManager.cpp" />
     <ClCompile Include="Classes\ResourceManager\Shader.cpp" />

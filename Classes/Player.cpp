@@ -1,15 +1,6 @@
 #include "../Headers/Player.h"
 
-	/*
-	int strength = 1;
-	int intelligence = 1;
-	int dexterity = 1;
-	int constitution = 1;
-	int faith = 1;
-	int currentExprience;
-	Inventory inventory
-	std::string name;
-	*/
+	
 	//stores stats
 	Player::Player() : Character("Player 1") {}
 	Player::Player(std::string n) : Character(n) {}

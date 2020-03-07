@@ -131,13 +131,4 @@ protected:
 	std::map<int, int> abil_helper;
 	std::vector<Ailment> ailments;
 };
-
-/*Resistance evasion;
-Resistance physical;
-Resistance fire;
-Resistance earth;
-Resistance water;
-Resistance air;
-Resistance light;
-Resistance dark;*/
 #endif

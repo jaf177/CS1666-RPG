@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <iterator>
-#include "Inventory.h"
 #include "Ability.h"
 #include "Character.h"
 #include "Helper.h"
@@ -28,7 +27,6 @@ public:
 private:
 	int level;
 	int currentExperience;
-	Inventory inventory;
 	
 			
 };
