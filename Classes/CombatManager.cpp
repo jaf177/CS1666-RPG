@@ -83,7 +83,7 @@ int CombatManager::updateStatus() {
 	{
 		Character* c = participants[i];
 		if (c->getHPCurrent() <= 0 || ParticipantsStatus[i] != IN_COMBAT) continue;
-		c->ailmAffect();
+		
 		if (c->getHPCurrent() <= 0) {
 			if (c->is_Enemy()) livingCount[ENEMY]--;
 			else livingCount[PLAYER]--;
@@ -247,24 +247,6 @@ int CombatManager::takeActionByAI(Character* c, int EnemyActionOrderCount) {
 				}
 			}
 		}
-		//*/
-			/*
-			//Enemy attack player
-			std::vector<Ability> temp = c->getAbilities();
-			int target = rand() % player_index.size();
-			int result = participants[player_index[target]]->beingTarget(&temp[0]);
-			stringstream ss;
-			ss << c->getName() << " damages you by " << result << " HP!" << " You now still have " << participants[0]->getHPCurrent() << " HP left.";
-			m_combatDialogManager.AddMessage(ss.str());
-			//*/
-			/*if (ailments.size() == 0)
-			{
-				//std::cout << "Their attack did not have any status effect on you." << std::endl;
-				m_combatDialogManager.AddMessage("Their attack did not have any status effect on you.");
-			}
-			else {
-
-			}*/
 	}
 
 	m_combatDialogManager.ClearEvents();
@@ -273,7 +255,6 @@ int CombatManager::takeActionByAI(Character* c, int EnemyActionOrderCount) {
 
 int CombatManager::textAction(Character* c) {
 
-	vector<int> ailments;
 	if (c->is_Enemy() == true)
 	{
 		/*while (c->getEnergyCurrent() != 0 && ParticipantsStatus[enemy_index[EnemyActionOrderCount]] == IN_COMBAT) {
@@ -363,15 +344,6 @@ int CombatManager::textAction(Character* c) {
 		stringstream ss;
 		ss << c->getName() << " damages you by " << result << " HP!" << " You now still have " << participants[0]->getHPCurrent() << " HP left.";
 		m_combatDialogManager.AddMessage(ss.str());
-		
-		/*if (ailments.size() == 0) 
-		{ 
-			//std::cout << "Their attack did not have any status effect on you." << std::endl;
-			m_combatDialogManager.AddMessage("Their attack did not have any status effect on you.");
-		}
-		else {
-
-		}*/
 		if (participants[player_index[target]]->getHPCurrent() == 0) {
 			//std::cout << "Why are your so weak? You are dead, dude!" << std::endl;
 			m_combatDialogManager.AddMessage("Why are your so weak? You are dead, dude!");
@@ -721,8 +693,6 @@ int CombatManager::combatMain(std::vector<Character*>& p)
 	//participants[1] = (Character*)(new Enemy());
 	
 	inCombat = true;
-
-	vector<int> ailments;
 	// Create QueueManager obj which contains sorting of participant array. 
 	QueueManager qm = QueueManager(participants);
 	//LoadTexture background;

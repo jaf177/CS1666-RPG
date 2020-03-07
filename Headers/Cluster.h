@@ -16,7 +16,7 @@ public:
 	Cluster(int q);
 	Cluster(std::string n);
 	Cluster(std::string n, int q);
-	vector<Character*> characterGroup;
+	std::vector<Character*> characterGroup;
 	Character* targetPlayer;
 	int targetTileX;
 	int targetTileY;

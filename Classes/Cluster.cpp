@@ -3,7 +3,7 @@
 Cluster::Cluster(int q) {
 	for (int temp = 0;temp < q;temp++)
 	{
-		string t_name = "Owl ";
+		std::string t_name = "Owl ";
 		t_name.push_back(char(temp + 65));
 		characterGroup.push_back(new Enemy(t_name, rand() % 10 + 1, rand() % 10 + 1, rand() % 10 + 1, rand() % 2 + 1, rand() % 10 + 1));
 	}
@@ -11,7 +11,7 @@ Cluster::Cluster(int q) {
 	currentFrame = 0;
 	timeBetweenAnimations = 120;
 
-	std::vector<string> tempSprite(13);
+	std::vector<std::string> tempSprite(13);
 	std::vector<int> tempWidth(13);
 	std::vector<int> tempHeight(13);
 	std::vector<int> tempImages(13);
@@ -208,7 +208,7 @@ void Cluster::moveSteps(double time)
 				yPosition--;
 			else if (next->y > yTile)
 				yPosition++;
-			else cout << "ERR" << endl;
+			else std::cout << "ERR" << std::endl;
 			xTile = (int)((xPosition + rectangle.w / 2) / TILE_WIDTH);
 			yTile = (int)((yPosition + rectangle.h) / TILE_HEIGHT);
 			if (xTile == next->x && yTile == next->y)

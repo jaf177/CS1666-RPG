@@ -34,6 +34,7 @@ static SDL_Texture* OutsideTopLeft;
 static SDL_Texture* OutsideBottomRight;
 static SDL_Texture* OutsideBottomLeft;
 static SDL_Texture* singleGrass2;
+static SDL_Texture* flower1;
 //loads tile textures
 
 

@@ -23,8 +23,8 @@
 #include "../Headers/CombatManager.h"
 #include "../Headers/Cluster.h"
 #include "../Headers/LoadTexture.h"
-#include "../Headers/aStar.h"
 #include "../Headers/ResourceManager/ResourceManager.h"
+#include "../Classes/Levelmap.cpp"
 
 // Function declarations
 
@@ -80,8 +80,6 @@ Mix_Chunk *soundButtonSuccess_Down = NULL;
 Mix_Chunk *soundButtonFailure = NULL; 
 Mix_Chunk *soundMenuSelect = NULL;
 TTF_Font* font;
-
-aStar pathing;
 
 //Player ONE
 Player* player1;
@@ -415,6 +413,36 @@ void animateCharacter(Character* i,SDL_Rect camera)
 	SDL_RenderCopyEx(gRenderer, i->getSpriteTexture(), &i->drawRectangle, &i->rectangle, 0.0, nullptr, i->flip);
 }
 
+void gameStartTransition()
+{
+	LoadTexture background;
+	background.loadFromFile("Images/UI/CreateScreen/characterCreateV2NoButtons.png", gRenderer);
+	background.renderBackground(gRenderer);
+	SDL_RenderPresent(gRenderer);
+	SDL_Delay(1000);
+	background.renderBackground(gRenderer);
+	SDL_Delay(1000);
+	/*
+	SDL_Rect wholeS = { 0,0,720,720 };
+	SDL_Rect words = { 220,200,120,60 };
+	SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
+	SDL_RenderFillRect(gRenderer, &wholeS);
+	SDL_RenderPresent(gRenderer);
+	string level = "Loading Next Level";
+	SDL_Color TextColor = { 255, 255, 255, 0 };
+	renderText(level.c_str(), &words, &TextColor);
+	SDL_RenderPresent(gRenderer);
+	SDL_Rect wipe = { 180,240,20,20 };
+	SDL_SetRenderDrawColor(gRenderer, 0, 255, 0, 255);
+	for (; wipe.x < 540; wipe.x += 20)
+	{
+		SDL_RenderFillRect(gRenderer, &wipe);
+		SDL_RenderPresent(gRenderer);
+		SDL_Delay(100);
+	}
+	*/
+}
+
 void combatTransition()
 {
 	startMusic("Audio/Song_CombatTransition.wav", MIX_MAX_VOLUME / 8);
@@ -720,6 +748,7 @@ int characterCreateScreen()
 									deleteAll(buttons);
 									background.free();
 									Mix_HaltMusic();
+									gameStartTransition();
 									return GOTO_INGAME;
 								}
 								else
@@ -841,52 +870,15 @@ int characterCreateScreen()
 				}
 			}
 
-			else if (e.type == SDL_KEYDOWN) {
+			else if (e.type == SDL_KEYDOWN)
+			{
 				//remove char if backspace
-				if (e.key.keysym.sym == SDLK_BACKSPACE && nameInputText.length() > 0) {
+				if (e.key.keysym.sym == SDLK_BACKSPACE && nameInputText.length() > 0)
+				{
 					Mix_PlayChannel(-1, gBSound, 0);
 					Mix_Volume(-1, adjustVolume(MIX_MAX_VOLUME));
 					nameInputText.pop_back();
 				}
-				//Move on by pressing enter
-				else if (e.key.keysym.sym == SDLK_RETURN) {
-						if (nameInputText == "nfl4" || nameInputText == "nlf4" || pointsToAllocate == 0) {
-							if (nameInputText != "") {
-								Mix_PlayChannel(-1, gBSound, 0);
-								Mix_Volume(-1, adjustVolume(MIX_MAX_VOLUME));
-								onCharacterCreate = false;
-								if (nameInputText == "nfl4" || nameInputText == "nlf4"){
-									player1 = new Player(nameInputText, 10, 10, 10, 10, 10);//player1->setAll(nameInputText, 10, 10, 10, 10, 10);
-									attr.push_back(10);
-									attr.push_back(10);
-									attr.push_back(10);
-									attr.push_back(10);
-									attr.push_back(10);
-
-								}else {
-									attr.push_back(strength);
-									attr.push_back(intelligence);
-									attr.push_back(dexterity);
-									attr.push_back(constitution);
-									attr.push_back(faith);
-									player1 = new Player(nameInputText, strength, intelligence, dexterity, constitution, faith);//player1->setAll(nameInputText, strength, intelligence, dexterity, constitution, faith);
-								}
-								std::cout << std::string(*player1); //displays player 1
-								//make Character Object, validate, return to main
-								deleteAll(buttons);
-								background.free();
-								Mix_HaltMusic();
-								return GOTO_INGAME;
-							}
-							else {
-								errorInputText = "Enter Your Name!";
-							}
-						}
-						else {
-							errorInputText = "Points Remaining!";
-							break; //not valid to start, break out of for loop
-						}
-					}
 			}
 			else if (e.type == SDL_TEXTINPUT) {
 				//add char
@@ -1120,6 +1112,7 @@ int handlePauseMenu(bool inPauseMenu, std::vector<Player*> allPlayers, std::vect
 							flashButton(exitbutton_selected, exitbutton, i, soundMenuSelect);
 							deleteAll(buttons);
 							SDL_DestroyTexture(background);
+							Mix_HaltMusic();
 							inPauseMenu = false;
 							return GOTO_MAIN;
 						}
@@ -1241,6 +1234,9 @@ int moveCluster(std::vector<Cluster*> c, std::vector<Player*> p, double time, Ti
 
 int playGame()
 {
+	
+	
+
 	std::vector<Player*> allPlayers;
 	std::vector<Cluster*> allEnemies;
 	std::vector<Character*> allCombat;
@@ -1254,8 +1250,6 @@ int playGame()
 	std::vector<SDL_Rect> HUD_LevelRect;
 
 	Cluster* CollidingCluster;
-
-	pathing = aStar();
 	Uint32 timeSinceLastMovement = SDL_GetTicks();
 	Uint32 timeSinceLastAnimation = SDL_GetTicks();
 	Uint32 lastSync = SDL_GetTicks();
@@ -1266,12 +1260,20 @@ int playGame()
 	allPlayers.push_back(player1);
 
 	startMusic("Audio/Song_Overworld.wav", MIX_MAX_VOLUME / 8);
-
-	for (MAP_INDEX = 0; MAP_INDEX < ALL_MAPS.size(); MAP_INDEX++)
+	int numberOfLevels;
+	if (OPTION_randomMaps)
+		numberOfLevels = ALL_CUSTOM_MAPS.size();
+	else numberOfLevels = ALL_MAPS.size();
+	for (MAP_INDEX = 0; MAP_INDEX < numberOfLevels; MAP_INDEX++)
 	{
 		Tile* tiles[MAX_HORIZONTAL_TILES][MAX_VERTICAL_TILES];
-		SDL_Rect* BlockedTiles = loadMap(tiles, ALL_MAPS.at(MAP_INDEX));
-
+		SDL_Rect* BlockedTiles;
+		if (OPTION_randomMaps)
+		{
+			CreateLevel(MAX_HORIZONTAL_TILES, MAX_VERTICAL_TILES, MAP_INDEX+1);
+			BlockedTiles = loadMap(tiles, ALL_CUSTOM_MAPS.at(MAP_INDEX));
+		}
+		else BlockedTiles = loadMap(tiles, ALL_MAPS.at(MAP_INDEX));
 		int numEnemies = STARTING_ENEMIES * (MAP_INDEX + 1);
 		allEnemies = vector<Cluster*>();
 
@@ -1347,9 +1349,6 @@ int playGame()
 				HUD_HealthRect.push_back({ SCREEN_WIDTH - 10, SCREEN_HEIGHT - 35, 0, 0 });
 				HUD_LevelRect.push_back({ SCREEN_WIDTH - 10, SCREEN_HEIGHT - 60, 0, 0 });
 				break;
-			default:
-				cout << "ERROR HERE" << endl;
-				exit(1);
 			}
 			hudArea++;
 		}
@@ -2019,11 +2018,6 @@ int optionsScreen()
 		SDL_RenderPresent(gRenderer);
 		SDL_Delay(16);
 	}
-
-
-
-
-
 
 	return GOTO_MAIN;
 }

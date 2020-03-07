@@ -10,7 +10,7 @@
 #include <iostream>
 #include <sstream>
 #include <cstring>
-
+using namespace std;
 class Player : public Character
 {
 public:

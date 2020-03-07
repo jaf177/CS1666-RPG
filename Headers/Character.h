@@ -4,10 +4,8 @@
 #include <string>
 #include <vector>
 #include "Attribute.h"
-#include "Resistance.h"
 #include "Ability.h"
 #include "Globals.h"
-#include "Ailment.h"
 #include <map>
 #include <algorithm>
 #include <cstring>
@@ -59,7 +57,6 @@ public:
 	Attribute getAttr(int i);
 	std::vector<Ability> getAbilities();
 	std::vector<Ability*> getAbilityPointers();
-	std::vector<Ailment> getAilm();
 	
 	double xVelocity;
 	double yVelocity;
@@ -86,15 +83,13 @@ public:
 	//void takeDamage(Ability a);
 	void learnAbility(int a);
 
-	void takeAilm(Ailment ailm);
 	void ailmAffect();
 
 	void checkStatus();
 
 	int updateEnergy(Ability* a);
 	void refillEnergy();
-
-	string toString();
+	std::string toString();
 	void changeTexture(int);
 
 protected:
@@ -129,6 +124,5 @@ protected:
 	std::vector<Attribute> attributes;
 	std::vector<Ability> abilities;
 	std::map<int, int> abil_helper;
-	std::vector<Ailment> ailments;
 };
 #endif

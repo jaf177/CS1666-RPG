@@ -6,16 +6,17 @@
 
 #include "Character.h"
 #include "Item.h"
-
-class Enemy : public Character {
+using namespace std;
+class Enemy : public Character
+{
 public:
 	Enemy();
 	Enemy(std::string n, int s, int i, int d, int c, int f);
-	string getType();
+	std::string getType();
 protected:
 	std::string description;
 	std::vector<Item> lost;
 	int experienceGiven;
-	string type;
+	std::string type;
 };
 #endif

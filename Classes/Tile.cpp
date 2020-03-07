@@ -17,21 +17,24 @@ Tile::Tile(int x, int y, int tileType)
 	
 	switch (tileType)
 	{
+	case 15://flower 1
+		texture = flower1;
+		break;
 	case 14://single grass 2 
 		texture = singleGrass2;
 		
 		break;
-	case 13://ouside Bottom Left edge
+	case 13://outside Bottom Left edge
 		texture = OutsideBottomLeft;
 
 		break;
-	case 12://ouside Bottom Right edge
+	case 12://outside Bottom Right edge
 		texture = OutsideBottomRight;
 		break;
-	case 11://ouside top left edge
+	case 11://outside top left edge
 		texture = OutsideTopLeft;
 		break;
-	case 10://ouside top right edge
+	case 10://outside top right edge
 		texture = OutsideTopRight;
 		break;
 	case 9://pond right edge
@@ -121,6 +124,8 @@ void Tile::loadTiles()
 	pond = Helper::loadImage("Images/Tiles/pond.png", gRenderer);
 
 	grass = Helper::loadImage("Images/Tiles/singleGrass.png", gRenderer);
+
+	flower1 = Helper::loadImage("Images/Tiles/flower1.png", gRenderer);
 
 }
 

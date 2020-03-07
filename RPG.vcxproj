@@ -170,7 +170,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Classes\Ability.cpp" />
-    <ClCompile Include="Classes\Ailment.cpp" />
     <ClCompile Include="Classes\AI\Action.cpp" />
     <ClCompile Include="Classes\AI\CombatAI.cpp" />
     <ClCompile Include="Classes\AI\MPS_ASModifier.cpp" />
@@ -181,7 +180,6 @@
     <ClCompile Include="Classes\AI\MPS_RModifier.cpp" />
     <ClCompile Include="Classes\AI\MPS_Task.cpp" />
     <ClCompile Include="Classes\AI\MPS_TaskAssignment.cpp" />
-    <ClCompile Include="Classes\aStar.cpp" />
     <ClCompile Include="Classes\Attribute.cpp" />
     <ClCompile Include="Classes\Button.cpp" />
     <ClCompile Include="Classes\Character.cpp" />
@@ -190,6 +188,7 @@
     <ClCompile Include="Classes\Enemy.cpp" />
     <ClCompile Include="Classes\Graphics.cpp" />
     <ClCompile Include="Classes\Helper.cpp" />
+    <ClCompile Include="Classes\LevelMap.cpp" />
     <ClCompile Include="Classes\LoadTexture.cpp" />
     <ClCompile Include="Classes\mainGame.cpp" />
     <ClCompile Include="Classes\Path.cpp" />
@@ -232,8 +231,6 @@
   <ItemGroup>
     <ClInclude Include="Headers\Abilities\AbilityResource.h" />
     <ClInclude Include="Headers\Ability.h" />
-    <ClInclude Include="Headers\Ailment.h" />
-    <ClInclude Include="Headers\Ailments\AilmentResource.h" />
     <ClInclude Include="Headers\AI\Action.h" />
     <ClInclude Include="Headers\AI\CombatAI.h" />
     <ClInclude Include="Headers\AI\CombatAIResource.h" />
@@ -246,9 +243,7 @@
     <ClInclude Include="Headers\AI\MPS_RModifier.h" />
     <ClInclude Include="Headers\AI\MPS_Task.h" />
     <ClInclude Include="Headers\AI\MPS_TaskAssignment.h" />
-    <ClInclude Include="Headers\aStar.h" />
     <ClInclude Include="Headers\Attribute.h" />
-    <ClInclude Include="Headers\Attributes\Strength.h" />
     <ClInclude Include="Headers\Attributes\Attr_Globals.h" />
     <ClInclude Include="Headers\Button.h" />
     <ClInclude Include="Headers\Character.h" />
@@ -265,7 +260,6 @@
     <ClInclude Include="Headers\Player.h" />
     <ClInclude Include="Headers\Point.h" />
     <ClInclude Include="Headers\QueueManager.h" />
-    <ClInclude Include="Headers\Resistance.h" />
     <ClInclude Include="Headers\ResourceManager\FontData.h" />
     <ClInclude Include="Headers\ResourceManager\ResourceManager.h" />
     <ClInclude Include="Headers\ResourceManager\Shader.h" />
@@ -282,16 +276,6 @@
     <ClInclude Include="SOIL2\pkm_helper.h" />
     <ClInclude Include="SOIL2\pvr_helper.h" />
     <ClInclude Include="SOIL2\SOIL2.h" />
-    <ClInclude Include="SOIL2\stbi_DDS.h" />
-    <ClInclude Include="SOIL2\stbi_DDS_c.h" />
-    <ClInclude Include="SOIL2\stbi_ext.h" />
-    <ClInclude Include="SOIL2\stbi_ext_c.h" />
-    <ClInclude Include="SOIL2\stbi_pkm.h" />
-    <ClInclude Include="SOIL2\stbi_pkm_c.h" />
-    <ClInclude Include="SOIL2\stbi_pvr.h" />
-    <ClInclude Include="SOIL2\stbi_pvr_c.h" />
-    <ClInclude Include="SOIL2\stb_image.h" />
-    <ClInclude Include="SOIL2\stb_image_write.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Maps\map1.txt" />

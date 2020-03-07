@@ -19,7 +19,7 @@
 #include "AI/CombatAI.h"
 #include "AI/Action.h"
 #include "ctype.h"
-
+using namespace std;
 class CombatManager
 {
 public:
@@ -32,7 +32,7 @@ public:
 	/*
 	*	the folloiwng 3 fucntions return true if player wins the combat, return false if player dies and thus lose the combat
 	*/
-	int performEvent(Character *c, string option, int optNum);
+	int performEvent(Character *c, std::string option, int optNum);
 	int takeAction(Character* c, std::vector<Button *> buttons, SDL_Event e);
 	int textAction(Character* c);
 	int combatMain(std::vector<Character*>& c);

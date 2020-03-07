@@ -1,6 +1,7 @@
 #include "../../Headers/AI/MPS_EAModifier.h"
 
-MPS_EAModifier::MPS_EAModifier(std::vector<Character*> tar, Ability* abil, int baseEA) {
+MPS_EAModifier::MPS_EAModifier(std::vector<Character*> tar, Ability* abil, int baseEA)
+{
 	Val = baseEA;
 	if (abil->isAOE()) Val *= 2;
 	if (abil->getType() == AbilityResource::tHEALING) {

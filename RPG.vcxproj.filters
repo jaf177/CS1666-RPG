@@ -131,9 +131,6 @@
     <ClCompile Include="Classes\Tile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Classes\Ailment.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Classes\Cluster.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -203,13 +200,13 @@
     <ClCompile Include="Classes\AI\MPS_RModifier.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Classes\aStar.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Classes\Path.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Classes\Point.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\LevelMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -229,9 +226,6 @@
     <ClInclude Include="Headers\Item.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\Resistance.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Headers\Player.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -242,12 +236,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Headers\QueueManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Headers\Ailment.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Headers\Attributes\Strength.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Headers\Helper.h">
@@ -295,40 +283,7 @@
     <ClInclude Include="SOIL2\SOIL2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SOIL2\stbi_DDS.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SOIL2\stbi_DDS_c.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SOIL2\stbi_ext.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SOIL2\stbi_ext_c.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SOIL2\stbi_pkm.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SOIL2\stbi_pkm_c.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SOIL2\stbi_pvr.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SOIL2\stbi_pvr_c.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SOIL2\stb_image.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SOIL2\stb_image_write.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Headers\Graphics.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Headers\Ailments\AilmentResource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Headers\ResourceManager\ResourceManager.h">
@@ -389,9 +344,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Headers\AI\MPS_RModifier.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Headers\aStar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Headers\Path.h">

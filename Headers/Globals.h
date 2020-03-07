@@ -10,7 +10,6 @@
 #include <SDL2/SDL_ttf.h>
 #include "Attributes/Attr_Globals.h"
 #include "Abilities/AbilityResource.h"
-#include "Ailments/AilmentResource.h"
 
 enum CHAR_TYPE {
 	PLAYER,
@@ -79,6 +78,7 @@ const int SCREEN_HEIGHT = 720;
 const int ENEMIES_PER_CLUSTER = 1;
 const int STARTING_ENEMIES = 2;
 const std::vector<std::string> ALL_MAPS = { "map1.txt", "map2.txt", "map3.txt" };
+const std::vector<std::string> ALL_CUSTOM_MAPS = { "custom_map1.txt", "custom_map2.txt", "custom_map3.txt" };
 const int MAX_HORIZONTAL_TILES = 30;
 const int MAX_VERTICAL_TILES = 30;
 const int MAX_INSIDE_TILE = 64;

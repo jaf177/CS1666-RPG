@@ -73,40 +73,7 @@
 		else if (energyCurrent > energyMax) energyCurrent = energyMax;
 	}
 	int Character::isAlive() { return hpCurrent>0; }
-	void Character::ailmAffect() {
-		if (ailments.size() == 0) return;
-		Ailment ailm;
-		for (int i = 0; i < ailments.size(); i++) {
-			ailm = ailments[i];
-			switch (ailm.getType())
-			{
-			case AilmentResource::tNONE:
-				break;
-			case AilmentResource::tHP_ONLY:
-				hpCurrent -= ailm.getVal();
-				break;
-			case AilmentResource::tMP_ONLY:
-				mpCurrent -= ailm.getVal();
-				break;
-			case AilmentResource::tEN_ONLY:
-				energyCurrent -= ailm.getVal();
-				break;
-			case AilmentResource::tCURSE:
-				if (ailm.getTN() == 1)
-					hpCurrent = 0;
-				break;
-			case AilmentResource::tALL:
-				break;
-			default:
-				break;
-			}
-			checkStatus();
-			ailm.update();
-			if (ailm.getTN() == 0 && ailm.getSA() == 0)
-				ailments.erase(ailments.begin() + i);
-		}
-	}	
-
+	
 	
 	void Character::learnAbility(int a) {
 		Ability abil = Ability(a, AbilityResource::abilityAttr[a], attributes);
@@ -136,33 +103,13 @@
 		return energyCurrent;
 	}
 	
-	void Character::takeAilm(Ailment ailm) {
-		if (ailments.size() != 0)
-		{
-			Ailment ailm_temp;
-			std::vector<Ailment>::iterator temp = find(ailments.begin(), ailments.end(), ailm);
-			if (temp != ailments.end())
-			{
-				ailm_temp = *temp;
-				ailm_temp.combineAilment(ailm);
-				*temp = ailm_temp;
-				return;
-			}
-			if (ailm == *ailments.end()) {
-				ailm_temp = *ailments.end();
-				ailm_temp.combineAilment(ailm);
-				*ailments.end() = ailm_temp;
-				return;
-			}
-		}
-		ailments.push_back(ailm);
-	}
+	
 	//*/
 	std::string Character::toString() {
 		std::string s = "Name: " + name + "\n";
-		s += "HP: " + to_string(getHPCurrent()) + "/" + to_string(getHPMax())+"\n";
-		s += "MP: " + to_string(getMPCurrent()) + "/" + to_string(getMPMax()) + "\n";
-		s += "Energy: " + to_string(getEnergyCurrent()) + "/" + to_string(getEnergyMax()) + " Energy Regenerated: " + to_string(energyRegen) + "\n";
+		s += "HP: " + std::to_string(getHPCurrent()) + "/" + std::to_string(getHPMax())+"\n";
+		s += "MP: " + std::to_string(getMPCurrent()) + "/" + std::to_string(getMPMax()) + "\n";
+		s += "Energy: " + std::to_string(getEnergyCurrent()) + "/" + std::to_string(getEnergyMax()) + " Energy Regenerated: " + std::to_string(energyRegen) + "\n";
 		for (auto i : attributes) {
 			s += i.toString() + "\n";
 		}
@@ -210,7 +157,6 @@
 	bool Character::is_Enemy() { return isEnemy; }
 	int Character::getLevel() { return level; }
 	Attribute Character::getAttr(int i) { return attributes[i]; }
-	std::vector<Ailment> Character::getAilm() { return ailments; }
 
 	std::string Character::ptoString()
 	{
@@ -278,11 +224,11 @@
 		if (vars.size() > 5)
 		{
 			name = vars[0];
-			attributes[STR].current = stoi(vars[1].c_str());
-			attributes[INT].current = stoi(vars[2].c_str());
-			attributes[DEX].current = stoi(vars[3].c_str());
-			attributes[CON].current = stoi(vars[4].c_str());
-			attributes[FAI].current = stoi(vars[5].c_str());
+			attributes[STR].current = std::stoi(vars[1].c_str());
+			attributes[INT].current = std::stoi(vars[2].c_str());
+			attributes[DEX].current = std::stoi(vars[3].c_str());
+			attributes[CON].current = std::stoi(vars[4].c_str());
+			attributes[FAI].current = std::stoi(vars[5].c_str());
 		}
 		return;
 	}
