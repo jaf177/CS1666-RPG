@@ -199,7 +199,9 @@ std::vector<Point*> Path::makePath(int currentX, int currentY, int endX, int end
 }
 bool Path::isValid(int x, int y)
 {
-	return map[x][y] == 0;
+	if(map[x][y] == 0 || map[x][y] == 14 || map[x][y] == 15)
+		return true;
+	else return false;
 }
 
 bool Path::isDestination(int x, int y, int endX, int endY)

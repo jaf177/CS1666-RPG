@@ -19,10 +19,11 @@ Tile::Tile(int x, int y, int tileType)
 	{
 	case 15://flower 1
 		texture = flower1;
+		solid = true;
 		break;
 	case 14://single grass 2 
 		texture = singleGrass2;
-		
+		solid = true;
 		break;
 	case 13://outside Bottom Left edge
 		texture = OutsideBottomLeft;
@@ -69,7 +70,7 @@ Tile::Tile(int x, int y, int tileType)
 		break;
 	case 0://grass
 		texture = grass;
-		
+		solid = true;
 		break;
 	}
 }

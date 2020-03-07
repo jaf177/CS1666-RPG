@@ -61,7 +61,7 @@ public:
 
 	//The tile type
 	int mType;
-	bool solid;
+	bool solid = false;
 };
 #endif
 

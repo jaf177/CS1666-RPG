@@ -6,15 +6,15 @@
 #include <string>
 using namespace std;
 
-void static CreateLevel(int W, int H, int LEVELNUM)
+static void CreateLevel(int W, int H, int LEVELNUM)
 {
-	string fileName = "Maps/custom_map"+to_string(LEVELNUM)+".txt";
+	string fileName = "Maps/custom_map" + to_string(LEVELNUM) + ".txt";
 	ofstream file(fileName);
 	if (file.is_open())
 	{
 		srand(time(NULL));
 		int num_walkable_tiles = 0;
-		while (num_walkable_tiles * 3 < W*H)
+		while ((num_walkable_tiles * 2) < (W*H))
 		{
 			vector<vector<int>> tiles(H, vector<int>(W, 0));
 			num_walkable_tiles = 0;
@@ -28,7 +28,7 @@ void static CreateLevel(int W, int H, int LEVELNUM)
 						if (currentY == 0)
 						{
 							// This is the top left corner
-							tiles.at(currentY).at(currentX) = rand() % 15;
+							tiles.at(currentY).at(currentX) = 0;
 						}
 						else
 						{
@@ -42,7 +42,7 @@ void static CreateLevel(int W, int H, int LEVELNUM)
 							case 6:
 							case 14:
 							case 15:
-								legalTiles = { 0,0,0,3,7,8,14,15 };
+								legalTiles = { 0,3,7,8,14,15};
 								break;
 								// WATER - WATER
 							case 1:
@@ -81,7 +81,7 @@ void static CreateLevel(int W, int H, int LEVELNUM)
 							case 9:
 							case 14:
 							case 15:
-								legalTiles = { 0,0,0,2,5,7,14,15 };
+								legalTiles = { 0,2,5,7,14,15 };
 								break;
 								// WATER - WATER
 							case 1:
@@ -125,7 +125,7 @@ void static CreateLevel(int W, int H, int LEVELNUM)
 								case 9:
 								case 14:
 								case 15:
-									legalTiles = { 0,0,0,7,14,15 };
+									legalTiles = { 0,7,14,15 };
 									break;
 									// GRASS - GRASS - WATER
 								case 3:
@@ -207,21 +207,26 @@ void static CreateLevel(int W, int H, int LEVELNUM)
 							int corner = tiles.at(currentY - 1).at(currentX - 1);
 							if (legalTiles.size() == 0)
 								legalTiles = { 0 };
-							tiles.at(currentY).at(currentX) = legalTiles.at(rand() % legalTiles.size());
+							if (find(legalTiles.begin(), legalTiles.end(), 0) != legalTiles.end()&(rand() % 100 + 1 < 99))
+							{
+									tiles.at(currentY).at(currentX) = 0;
+							}
+							else tiles.at(currentY).at(currentX) = legalTiles.at(rand() % legalTiles.size());
 						}
 					}
-					if (tiles.at(currentY).at(currentX) == 0)
+					if (tiles.at(currentY).at(currentX) == 0|| tiles.at(currentY).at(currentX) == 14|| tiles.at(currentY).at(currentX) == 15)
 						num_walkable_tiles++;
 					file << to_string(tiles.at(currentY).at(currentX)) + " ";
 				}
 				file << endl;
 			}
+			cout << num_walkable_tiles << endl;
 		}
 		file.close();
 	}
 	else
 	{
-	cout << "DIDN'T WORK" << endl;
+		cout << "DIDN'T WORK" << endl;
 	}
-	
+
 }

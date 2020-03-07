@@ -237,11 +237,10 @@ SDL_Rect * loadMap(Tile* tiles[MAX_HORIZONTAL_TILES][MAX_VERTICAL_TILES],string 
 				}
 
 				//If the number is a valid tile number
-				if ((tileType >= 0) && (tileType != 0 || tileType != 1))
+				if (tileType >= 0)
 				{
 					tiles[tempx][tempy] = new Tile(x, y, tileType);
-					if (tiles[tempx][tempy]->solid = true)
-						blockedTiles.push_back(tiles[tempx][tempy]->getBox());
+					blockedTiles.push_back(tiles[tempx][tempy]->getBox());
 				}
 				//If we don't recognize the tile type
 				else
@@ -1259,7 +1258,7 @@ int playGame()
 
 	allPlayers.push_back(player1);
 
-	startMusic("Audio/Song_Overworld.wav", MIX_MAX_VOLUME / 8);
+	
 	int numberOfLevels;
 	if (OPTION_randomMaps)
 		numberOfLevels = ALL_CUSTOM_MAPS.size();
@@ -1284,7 +1283,7 @@ int playGame()
 			{
 				int x_to_tile = xToTile(player);
 				int y_to_tile = yToTile(player);
-				if (tiles[x_to_tile][y_to_tile]->mType == 0)
+				if (tiles[x_to_tile][y_to_tile]->solid)
 					break;
 				player->xPosition = 1+(rand() % (LEVEL_WIDTH - player->getImageWidth()));
 				player->xTile = xToTile(player);
@@ -1315,7 +1314,7 @@ int playGame()
 				i->yTile = 1 + (rand() % (MAX_VERTICAL_TILES - 1));
 				i->xPosition = tileToX(i);
 				i->yPosition = tileToY(i);
-				if (tiles[i->xTile][i->yTile]->mType == 0)
+				if (tiles[i->xTile][i->yTile]->solid)
 					break;
 			}
 		}
@@ -1364,6 +1363,7 @@ int playGame()
 		bool combatStarted = false;
 		bool inPauseMenu = false;
 		bool keepPlaying = true;
+		startMusic("Audio/Song_Overworld.wav", MIX_MAX_VOLUME / 8);
 		while (keepPlaying)
 		{
 			while (inOverworld) 
@@ -1488,7 +1488,7 @@ int playGame()
 						int x_to_tile = xToTile(i);
 						int y_to_tile = yToTile(i);
 
-						if (tiles[x_to_tile][y_to_tile]->mType != 0)
+						if (!tiles[x_to_tile][y_to_tile]->solid)
 						{
 							i->yPosition = beforeMoveY;
 						}
@@ -1506,7 +1506,7 @@ int playGame()
 						int x_to_tile = xToTile(i);
 						int y_to_tile = yToTile(i);
 
-						if (tiles[x_to_tile][y_to_tile]->mType != 0)
+						if (!tiles[x_to_tile][y_to_tile]->solid)
 						{
 							i->xPosition = beforeMoveX;
 						}
