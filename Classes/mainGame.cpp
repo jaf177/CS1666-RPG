@@ -1825,7 +1825,7 @@ int optionsScreen()
 			{
 				int mouseX, mouseY;
 				SDL_GetMouseState(&mouseX, &mouseY);
-				int deltaAttribute;
+				int deltaAttribute = 0;
 				for (auto i : buttons)
 				{
 					//if mouse is clicked inside a button
@@ -1843,15 +1843,31 @@ int optionsScreen()
 						
 						if (i->type == "right")
 						{
+							if (i->locked)
+							{
+								Mix_PlayChannel(-1, soundButtonFailure, 0);
+								Mix_Volume(-1, adjustVolume(MIX_MAX_VOLUME));
+							}
+							else
+							{
 								Mix_PlayChannel(-1, soundButtonSuccess_Up, 0);
 								Mix_Volume(-1, adjustVolume(MIX_MAX_VOLUME));
 								deltaAttribute = 1;
+							}
 						}
 						else if (i->type == "left")
 						{
+							if (i->locked)
+							{
+								Mix_PlayChannel(-1, soundButtonFailure, 0);
+								Mix_Volume(-1, adjustVolume(MIX_MAX_VOLUME));
+							}
+							else
+							{
 								Mix_PlayChannel(-1, soundButtonSuccess_Down, 0);
 								Mix_Volume(-1, adjustVolume(MIX_MAX_VOLUME));
 								deltaAttribute = -1;
+							}
 						}
 
 						if (i->attribute == "volume")
@@ -1860,10 +1876,6 @@ int optionsScreen()
 							{
 								OPTION_volume += (2 * deltaAttribute);
 								Mix_VolumeMusic(adjustVolume(MIX_MAX_VOLUME/8));
-								/*
-								OPTION_randomMaps = true;
-								OPTION_randomMaps = false;
-								*/
 							}
 						}
 						else if (i->attribute == "difficulty")
@@ -1877,11 +1889,31 @@ int optionsScreen()
 						{
 							if(i->type == "on")
 							{
-								OPTION_randomMaps = true;
+								if (i->locked)
+								{
+									Mix_PlayChannel(-1, soundButtonSuccess_Down, 0);
+									Mix_Volume(-1, adjustVolume(MIX_MAX_VOLUME));
+									OPTION_randomMaps = true;
+								}
+								else
+								{
+									Mix_PlayChannel(-1, soundButtonFailure, 0);
+									Mix_Volume(-1, adjustVolume(MIX_MAX_VOLUME));
+								}
 							}
 							else if (i->type == "off")
 							{
-								OPTION_randomMaps = false;
+								if (i->locked)
+								{
+									Mix_PlayChannel(-1, soundButtonSuccess_Down, 0);
+									Mix_Volume(-1, adjustVolume(MIX_MAX_VOLUME));
+									OPTION_randomMaps = false;
+								}
+								else
+								{
+									Mix_PlayChannel(-1, soundButtonFailure, 0);
+									Mix_Volume(-1, adjustVolume(MIX_MAX_VOLUME));
+								}
 							}
 						}
 						break;
