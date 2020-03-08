@@ -1079,6 +1079,7 @@ int handlePauseMenu(bool inPauseMenu, std::vector<Player*> allPlayers, std::vect
 	}
 
 	SDL_Event e;
+	bool justPaused = true;
 	while (inPauseMenu)
 	{
 		while (SDL_PollEvent(&e))
@@ -1089,6 +1090,17 @@ int handlePauseMenu(bool inPauseMenu, std::vector<Player*> allPlayers, std::vect
 				inPauseMenu = false;
 				return GOTO_EXIT;
 			}
+			if (key[SDL_SCANCODE_ESCAPE])
+			{
+				if (!justPaused)
+					{
+						deleteAll(buttons);
+						SDL_DestroyTexture(background);
+						inPauseMenu = false;
+						return GOTO_INGAME;
+					}
+			}
+			else justPaused = false;
 			if (e.button.button == (SDL_BUTTON_LEFT) && e.type == SDL_MOUSEBUTTONDOWN)
 			{
 				int mouseX, mouseY;
@@ -1363,6 +1375,7 @@ int playGame()
 		bool combatStarted = false;
 		bool inPauseMenu = false;
 		bool keepPlaying = true;
+		bool justUnpaused = false;
 		startMusic("Audio/Song_Overworld.wav", MIX_MAX_VOLUME / 8);
 		while (keepPlaying)
 		{
@@ -1578,9 +1591,13 @@ int playGame()
 
 				if (keyState[SDL_SCANCODE_ESCAPE])
 				{
-					inOverworld = false;
-					inPauseMenu = true;
+					if(!justUnpaused)
+					{
+						inOverworld = false;
+						inPauseMenu = true;
+					}
 				}
+				else justUnpaused = false;
 
 				int enemyToRemove = 0;
 				for (auto z : allEnemies)
@@ -1621,6 +1638,7 @@ int playGame()
 				{
 				case GOTO_INGAME:
 					inOverworld = true;
+					justUnpaused = true;
 					break;
 				case GOTO_MAIN:
 					return GOTO_MAIN;
