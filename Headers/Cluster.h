@@ -9,13 +9,12 @@
 #include "Path.h"
 #include <random>
 #include "Helper.h"
+using namespace std;
 class Cluster : public Character
 {
 public:
 	Cluster();
-	Cluster(int q);
-	Cluster(std::string n);
-	Cluster(std::string n, int q);
+	Cluster(int, int);
 	std::vector<Character*> characterGroup;
 	Character* targetPlayer;
 	int targetTileX;
@@ -35,10 +34,5 @@ public:
 	void moveSteps(double);
 	int pathOffset;
 	double partialSteps;
-
-	int lastDirection = -1;
-	std::queue<int> seqX;
-	std::queue<int> seqY;
-	double aRange = 1750.0;
 };
 #endif

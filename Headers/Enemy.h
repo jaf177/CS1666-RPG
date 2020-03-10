@@ -11,12 +11,13 @@ class Enemy : public Character
 {
 public:
 	Enemy();
-	Enemy(std::string n, int s, int i, int d, int c, int f);
-	std::string getType();
+	Enemy(string, int);
+	Enemy(string, int, int, int, int, int);
+	string getType();
 protected:
-	std::string description;
-	std::vector<Item> lost;
+	string description;
+	vector<Item> lost;
 	int experienceGiven;
-	std::string type;
+	string type;
 };
 #endif

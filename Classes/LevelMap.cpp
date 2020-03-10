@@ -6,6 +6,15 @@
 #include <string>
 using namespace std;
 
+/*
+
+Current Procedural Generation Was Created With A Huge Bias Toward Creating Maps That Are Mainly Walkable Blocks
+
+In Upcoming Patches : Use DFS To Guarantee All Walkable Blocks Are Reachable
+
+*/
+
+
 static void CreateLevel(int W, int H, int LEVELNUM)
 {
 	string fileName = "Maps/custom_map" + to_string(LEVELNUM) + ".txt";

@@ -1311,8 +1311,9 @@ int playGame()
 		{
 			int length = sizeof(int);
 			int enemiesInCluster = (rand() % (ENEMIES_PER_CLUSTER + MAP_INDEX)) + 1;
-			Cluster* enemy = new Cluster(enemiesInCluster);
+			Cluster* enemy = new Cluster(enemiesInCluster, OPTION_difficulty);
 			cout << "Enemy " << num_enemy + 1 << " Cluster Size: " << enemy->clusterSize << endl;
+			cout << enemy->isAlive() << endl;
 			allEnemies.push_back(enemy);
 		}
 

@@ -1,85 +1,102 @@
 #include "../Headers/Cluster.h"
 
-Cluster::Cluster(int q) {
-	for (int temp = 0;temp < q;temp++)
+Cluster::Cluster(int enemiesInCluster, int difficulty)
+{
+	vector<string> AllClusterTypes;
+	switch (difficulty)
 	{
-		std::string t_name = "Owl ";
-		t_name.push_back(char(temp + 65));
-		characterGroup.push_back(new Enemy(t_name, rand() % 10 + 1, rand() % 10 + 1, rand() % 10 + 1, rand() % 2 + 1, rand() % 10 + 1));
+	case 0:
+	case 1:
+	case 2:
+	case 3:
+		switch (enemiesInCluster)
+		{
+		case 1:
+			AllClusterTypes = { "Brown Owl"};
+			break;
+		default:
+			AllClusterTypes = { "Brown Owl", "Mix" };
+			break;
+		}
+		break;
+	case 4:
+	case 5:
+	case 6:
+		switch (enemiesInCluster)
+		{
+		case 1:
+			AllClusterTypes = { "Brown Owl", "Black Owl"};
+			break;
+		default:
+			AllClusterTypes = { "Brown Owl", "Mix", "Black Owl"};
+			break;
+		}
+		break;
+	case 7:
+	case 8:
+		switch (enemiesInCluster)
+		{
+		case 1:
+			AllClusterTypes = { "Black Owl" };
+			break;
+		default:
+			AllClusterTypes = { "Black Owl", "Mix" };
+			break;
+		}
+		break;
+	case 9:
+	case 10:
+		AllClusterTypes = {"Black Owl"};
+		break;
 	}
-	clusterSize = q;
+	string ourClusterType = AllClusterTypes.at(rand() % AllClusterTypes.size());
+	for (int temp = 0;temp < enemiesInCluster;temp++)
+	{
+		string enemyType;
+		if (ourClusterType == "Brown Owl" || ourClusterType == "Black Owl")
+		{
+			enemyType = ourClusterType;
+		}
+		else if (ourClusterType == "Mix")
+		{
+			enemyType = ALL_ENEMY_TYPES.at(rand()%ALL_ENEMY_TYPES.size());
+		}
+		//enemyType.push_back(char(temp + 65));
+		characterGroup.push_back(new Enemy(enemyType, difficulty));
+	}
+	clusterSize = enemiesInCluster;
 	currentFrame = 0;
 	timeBetweenAnimations = 120;
 
-	std::vector<std::string> tempSprite(13);
-	std::vector<int> tempWidth(13);
-	std::vector<int> tempHeight(13);
-	std::vector<int> tempImages(13);
+	vector<string> tempSprite(13);
+	vector<int> tempWidth(13);
+	vector<int> tempHeight(13);
+	vector<int> tempImages(13);
 
-	tempSprite.at(NOT_READY) = "Images/Enemies/shadow_cluster/OWL_BROWN_NOT_READY.png";
-	tempWidth.at(NOT_READY) = 112;
-	tempHeight.at(NOT_READY) = 136;
-	tempImages.at(NOT_READY) = 6;
-
-	tempSprite.at(IDLE_DOWN) = "Images/Enemies/shadow_cluster/OWL_BROWN_READY.png";
-	tempWidth.at(IDLE_DOWN) = 112;
-	tempHeight.at(IDLE_DOWN) = 136;
-	tempImages.at(IDLE_DOWN) = 6;
-
-	tempSprite.at(IDLE_RIGHT) = "Images/Enemies/shadow_cluster/OWL_BROWN_READY.png";
-	tempWidth.at(IDLE_RIGHT) = 112;
-	tempHeight.at(IDLE_RIGHT) = 136;
-	tempImages.at(IDLE_RIGHT) = 6;
-
-	tempSprite.at(IDLE_LEFT) = "Images/Enemies/shadow_cluster/OWL_BROWN_READY.png";
-	tempWidth.at(IDLE_LEFT) = 112;
-	tempHeight.at(IDLE_LEFT) = 136;
-	tempImages.at(IDLE_LEFT) = 6;
-
-	tempSprite.at(IDLE_UP) = "Images/Enemies/shadow_cluster/OWL_BROWN_READY.png";
-	tempWidth.at(IDLE_UP) = 112;
-	tempHeight.at(IDLE_UP) = 136;
-	tempImages.at(IDLE_UP) = 7;
-
-	tempSprite.at(RUN_DOWN) = "Images/Enemies/shadow_cluster/OWL_BROWN_READY.png";
-	tempWidth.at(RUN_DOWN) = 112;
-	tempHeight.at(RUN_DOWN) = 136;
-	tempImages.at(RUN_DOWN) = 6;
-
-	tempSprite.at(RUN_RIGHT) = "Images/Enemies/shadow_cluster/OWL_BROWN_READY.png";
-	tempWidth.at(RUN_RIGHT) = 112;
-	tempHeight.at(RUN_RIGHT) = 136;
-	tempImages.at(RUN_RIGHT) = 6;
-
-	tempSprite.at(RUN_LEFT) = "Images/Enemies/shadow_cluster/OWL_BROWN_READY.png";
-	tempWidth.at(RUN_LEFT) = 112;
-	tempHeight.at(RUN_LEFT) = 136;
-	tempImages.at(RUN_LEFT) = 6;
-
-	tempSprite.at(RUN_UP) = "Images/Enemies/shadow_cluster/OWL_BROWN_READY.png";
-	tempWidth.at(RUN_UP) = 112;
-	tempHeight.at(RUN_UP) = 136;
-	tempImages.at(RUN_UP) = 6;
-
-	tempSprite.at(RUN_DOWN_RIGHT) = "Images/Enemies/shadow_cluster/OWL_BROWN_READY.png";
-	tempWidth.at(RUN_DOWN_RIGHT) = 112;
-	tempHeight.at(RUN_DOWN_RIGHT) = 136;
-	tempImages.at(RUN_DOWN_RIGHT) = 6;
-
-	tempSprite.at(RUN_DOWN_LEFT) = "Images/Enemies/shadow_cluster/OWL_BROWN_READY.png";
-	tempWidth.at(RUN_DOWN_LEFT) = 112;
-	tempHeight.at(RUN_DOWN_LEFT) = 136;
-	tempImages.at(RUN_DOWN_LEFT) = 6;
-
-	tempSprite.at(RUN_UP_RIGHT) = "Images/Enemies/shadow_cluster/OWL_BROWN_READY.png";
-	tempWidth.at(RUN_UP_RIGHT) = 112;
-	tempHeight.at(RUN_UP_RIGHT) = 136;
-	tempImages.at(RUN_UP_RIGHT) = 6;
-
-	tempSprite.at(RUN_UP_LEFT) = "Images/Enemies/shadow_cluster/OWL_BROWN_READY.png";
-	tempWidth.at(RUN_UP_LEFT) = 112;
-	tempHeight.at(RUN_UP_LEFT) = 136;
-	tempImages.at(RUN_UP_LEFT) = 6;
+	for (int motionIndex = NOT_READY; motionIndex <= RUN_UP_LEFT; motionIndex++)
+	{
+		if (motionIndex == NOT_READY)
+		{
+			if (ourClusterType == "Mix")
+				tempSprite.at(motionIndex) = "Images/Enemies/shadow_cluster/OWL_MIX_NOT_READY.png";
+			else if (ourClusterType == "Brown Owl")
+				tempSprite.at(motionIndex) = "Images/Enemies/shadow_cluster/OWL_BROWN_NOT_READY.png";
+			else if (ourClusterType == "Black Owl")
+				tempSprite.at(motionIndex) = "Images/Enemies/shadow_cluster/OWL_BLACK_NOT_READY.png";
+		}
+		else
+		{
+			if (ourClusterType == "Mix")
+				tempSprite.at(motionIndex) = "Images/Enemies/shadow_cluster/OWL_MIX_READY.png";
+			else if (ourClusterType == "Brown Owl")
+				tempSprite.at(motionIndex) = "Images/Enemies/shadow_cluster/OWL_BROWN_READY.png";
+			else if (ourClusterType == "Black Owl")
+				tempSprite.at(motionIndex) = "Images/Enemies/shadow_cluster/OWL_BLACK_READY.png";
+		}
+		tempWidth.at(motionIndex) = 112;
+		tempHeight.at(motionIndex) = 136;
+		tempImages.at(motionIndex) = 6;
+	}
 
 	Helper helper = Helper();
 	for (int index = 0; index < tempSprite.size(); index++)
@@ -110,12 +127,6 @@ Cluster::Cluster(int q) {
 	pursuitRange = 400;
 	partialSteps = 0;
 }
-Cluster::Cluster(std::string n)
-{
-	name = n;
-	Cluster(1);
-}
-Cluster::Cluster() : Cluster("Sample"){}
 
 
 std::string Cluster::ptoString()
