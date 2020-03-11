@@ -1,5 +1,7 @@
 # CS1666-RPG: Assignment README
 
+### _The Following Ideas Were For The Initial Game. Since This Project No Longer Has Ties To A School Assignment, Many Aspects Have Been Modified Or Stripped Completely._
+
 ### Should describe the game being produced (GOALS)
 
 Turn-based combat, real-time overworld RPG/JRPG (roguelite/rougue-like). Interactive co-op (2+) i.e. multiplayer.  
