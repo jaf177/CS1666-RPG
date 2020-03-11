@@ -1,12 +1,12 @@
-#CS1699-RPG
+# CS1699-RPG
 
 TEAM.md
 
 ->Should list each team member's full name and Pitt email address (e.g., nlf4@pitt.edu)
 
-->Should be editted/modified by each team member. Each team member should add their own name. This will ensure that everyone has at least 1 commit to the repository.
+->Should be modified by each team member. Each team member should add their own name. This will ensure that everyone has at least 1 commit to the repository.
 
-TEAM:
+# TEAM:
 
 1. Austin Himler - arh121@pitt.edu
 
@@ -24,6 +24,6 @@ TEAM:
 
 8. Kexin Wang - kew102@pitt.edu
 
-9.Brandon Badger - bmb122@pitt.edu
+9. Brandon Badger - bmb122@pitt.edu
 
 10. Jake Himes - jph80@pitt.edu
