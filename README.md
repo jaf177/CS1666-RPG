@@ -1,6 +1,6 @@
-# CS1666-RPG: README
+# CS1666-RPG: Assignment README
 
-### Should describe the game being produced
+### Should describe the game being produced (GOALS)
 
 Turn-based combat, real-time overworld RPG/JRPG (roguelite/rougue-like). Interactive co-op (2+) i.e. multiplayer.  
 
