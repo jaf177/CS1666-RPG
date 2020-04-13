@@ -11,16 +11,10 @@
 #include <cstring>
 #include <sstream>
 #include <iostream>
-/*
-#include "Attributes/Strength.h"
-#include "Attributes/Intelligence.h"
-#include "Attributes/Dexterity.h"
-#include "Attributes/Constitution.h"
-#include "Attributes/Faith.h"
-*/
 
 
-class Character {
+class Character
+{
 
 public:
 	Character();
@@ -28,14 +22,11 @@ public:
 	Character(std::string n, int s, int i, int d, int c, int f);
 	Character(std::string n, std::vector<Attribute> attr);
 	
-	int getTilePosition();
 	int getLevel();
 	int getHPMax();
 	int getHPCurrent();
-	int getMPCurrent();
-	int getMPMax();
-	int getEnergyCurrent();
-	int getEnergyMax();
+	int getSpiritMax();
+	int getSpiritCurrent();
 	int getStatus();
 
 	void setSpriteSheetNumber(int);
@@ -87,8 +78,8 @@ public:
 
 	void checkStatus();
 
-	int updateEnergy(Ability* a);
-	void refillEnergy();
+	int updateSpirit(Ability* a);
+	void refillSpirit();
 	std::string toString();
 	void changeTexture(int);
 
@@ -96,11 +87,10 @@ protected:
 	bool isEnemy;
 	int hpMax;
 	int hpCurrent;
-	int energyMax;
-	int energyCurrent;
-	int energyRegen;
-	int mpMax;
-	int mpCurrent;
+	int hpRegen;
+	int spiritMax;
+	int spiritCurrent;
+	int spiritRegen;
 	int level;
 	std::vector<int> buff;
 	std::vector<SDL_Texture*> spriteTextures;
@@ -115,11 +105,9 @@ protected:
 
 	
 	void setHPMax();
-	void setMPMax();
-	void setEnergyMax();
-	void setRectangle(SDL_Rect);
-	void setAttributes(std::vector<Attribute>);
-	void setAbilities(std::vector<Ability>);
+	void setHPRegen();
+	void setSpiritMax();
+	void setSpiritRegen();
 
 	std::vector<Attribute> attributes;
 	std::vector<Ability> abilities;

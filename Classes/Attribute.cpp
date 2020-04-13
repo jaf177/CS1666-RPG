@@ -1,6 +1,7 @@
 #include "../Headers/Attribute.h"
 
-Attribute::Attribute(std::string n, int stat) {
+Attribute::Attribute(std::string n, int stat)
+{
 	base = stat;
 	current = stat;
 	name = n;

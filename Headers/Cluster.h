@@ -15,7 +15,7 @@ class Cluster : public Character
 public:
 	Cluster();
 	Cluster(int, int);
-	std::vector<Character*> characterGroup;
+	std::vector<Enemy*> characterGroup;
 	Character* targetPlayer;
 	int targetTileX;
 	int targetTileY;
@@ -34,5 +34,6 @@ public:
 	void moveSteps(double);
 	int pathOffset;
 	double partialSteps;
+	vector<Enemy*> getEnemiesInCluster();
 };
 #endif

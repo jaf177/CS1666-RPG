@@ -1250,7 +1250,6 @@ int playGame()
 
 	std::vector<Player*> allPlayers;
 	std::vector<Cluster*> allEnemies;
-	std::vector<Character*> allCombat;
 
 	std::vector<string> HUD_HPStrings;
 	std::vector<string> HUD_NameStrings;
@@ -1265,8 +1264,6 @@ int playGame()
 	Uint32 timeSinceLastAnimation = SDL_GetTicks();
 	Uint32 lastSync = SDL_GetTicks();
 	
-
-	std::string receiveString="";
 
 	allPlayers.push_back(player1);
 
@@ -1287,7 +1284,6 @@ int playGame()
 		else BlockedTiles = loadMap(tiles, ALL_MAPS.at(MAP_INDEX));
 		int numEnemies = STARTING_ENEMIES * (MAP_INDEX + 1);
 		allEnemies = vector<Cluster*>();
-
 		
 		for (auto player : allPlayers)
 		{
@@ -1610,12 +1606,6 @@ int playGame()
 						z->readyTimeLeft = 3000;
 						z->setSpriteSheetNumber(NOT_READY);
 						CollidingCluster = z;
-						allCombat.clear();
-						allCombat.push_back(player1);
-						for (auto i : z->characterGroup)
-						{
-							allCombat.push_back(i);
-						}
 						allEnemies.erase(allEnemies.begin() + enemyToRemove);
 						inOverworld = false;
 						combatStarted = true;
@@ -1654,7 +1644,7 @@ int playGame()
 			{
 				combatTransition();
 				CombatManager cm;
-				int combatResult = cm.combatMain(allCombat);
+				int combatResult = cm.combatMain(player1, CollidingCluster);
 				startMusic("Audio/Song_Overworld.wav", MIX_MAX_VOLUME / 8);
 				Mix_ResumeMusic();
 				timeSinceLastMovement = SDL_GetTicks();

@@ -13,10 +13,10 @@ namespace AbilityResource {
 	// always exhaustingly list abilities of the previous attribute before starting to list abilites of the next attribute, same apply to all other const arrays / vectors / enum
 
 	const std::string abilityNames[] = {
-		"Attack",
+		"Basic Attack",
 		"Fireball",
 		"Arrow Shot",
-		"Defend",
+		"Basic Defend",
 		"Smite",
 		"Heal",
 		"Mass Heal",
@@ -26,69 +26,72 @@ namespace AbilityResource {
 	//ability descriptions
 	inline std::string const &abilityDescrip(int n) {
 		static std::string ability_description[] = {
-			"Basic attack",
-			"Cast a Fireball, potentially causing some burnt on target",
-			"Shoot a arrow at blinding speed",
-			"Take the defending stance and increase energy regeneration for next turn",
-			"Smite your enemy to oblivion",
-			"Restore HP of one target",
-			"Restore HP across whole team",
-			"Try to escape from combat"
+			"Sometimes the simplest weapon is the most effective.",
+			"Channel your spirit into a devastating fire attack.",
+			"Shoot an arrow at blinding speed.",
+			"Take a defensive stance and take 50% decreased damage.",
+			"Smite your enemy with the power of your deity.",
+			"Restore HP to one target.",
+			"Restore HP to you and your allies.",
+			"Try to escape from combat."
 		};
 		return ability_description[n];
 	}
 
 	//abiilty base stats
-	inline int const &baseEnergyCost(int n) {
-		static int base_energy_cost[] = {
-			10,
+	inline int const &baseSpiritCost(int n) {
+		static int base_spirit_cost[] = {
+			0,
+			20,
+			0,
+			0,
+			40,
 			25,
-			30,
-			1,
-			50,
-			30,
-			60,
-			50
+			40,
+			0
 		};
-		return base_energy_cost[n];
+		return base_spirit_cost[n];
 	}
 
 	//abiilty base value
-	inline int const &baseValue(int n) {
-		static int base_value[] = {
-			10,
-			25,
+	inline int const &baseSomaticValue(int n) {
+		static int base_somatic_value[] = {
+			15,
+			5,
 			30,
-			8,
-			100,
-			100,
-			60,
-			50
+			0,
+			0,
+			0,
+			0,
+			0
 		};
-		return base_value[n];
+		return base_somatic_value[n];
 	}
 
-	// ability base MP cost
-	const int abilityMPCost[] = {
-		0,
-		10,
-		0,
-		0,
-		100,
-		100,
-		100,
-		0
-	};
+	//abiilty base value
+	inline int const &baseEtherealValue(int n) {
+		static int base_ethereal_value[] = {
+			0,
+			20,
+			0,
+			0,
+			50,
+			40,
+			20,
+			0
+		};
+		return base_ethereal_value[n];
+	}
 
 	//ability base CD
 	const int abilityCD[] = {
+		10,
+		20,
+		10,
 		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
+		30,
+		15,
+		25,
 		0
 	};
 	
@@ -129,22 +132,6 @@ namespace AbilityResource {
 		true,
 		false
 	};
-
-	// related attributes of each abiility in the order of influence
-	const std::vector<int> abilityAttr[] = {
-		{STR, DEX, CON},
-		{INT, DEX, FAI},
-		{DEX, CON, STR},
-		{CON, STR, DEX},
-		{FAI, INT, DEX},
-		{FAI, INT, CON},
-		{FAI, INT, CON},
-		{DEX, FAI, INT}
-	};
-
-	//ability related attributes
-	const int MAX_RELATED_ATTR = 3;
-
 
 	using namespace MPS_Resource;
 	const int MPS_TASKTYPE[] = {
