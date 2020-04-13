@@ -4,21 +4,19 @@
 	{
 		attributes = attr;
 		setHPMax();
-		setMPMax();
-		setEnergyMax();
+		setHPRegen();
+		setSpiritMax();
+		setSpiritRegen();
 		hpCurrent = hpMax;
-		mpCurrent = mpMax;
+		spiritCurrent = spiritMax;
 		flip = SDL_FLIP_NONE;
-		energyCurrent = energyMax;
-		energyRegen = 10;
-		energyRegen += (int)((energyMax < 10) ? 1 : 0.1 * energyMax);
-		energyRegen += (int)((attr[DEX].current < 10) ? 1 : 0.1 * attr[DEX].current);
 		name = n;
 		buff = std::vector<int>(BUFFCOUNT, 0);
 		level = 1;
 		learnAbility(ATTACK);
 		learnAbility(DEFEND);
-		learnAbility(ARROWSHOT);
+		if(getAttr(DEX).getCur() > 1)
+			learnAbility(ARROWSHOT);
 		xVelocity = 0;
 		yVelocity = 0;
 	}
@@ -26,37 +24,30 @@
 	Character::Character(std::string n) : Character(n, 1, 1, 1, 1, 1) {}
 	Character::Character() : Character("Character 1") {}
 
-	int Character::beingTarget(Ability* a) {
-		int i;
+	int Character::beingTarget(Ability* a)
+	{
 		int result = -1;
-		switch (a->getType()) {
+		int somaticDamage;
+		int etherealDamage;
+		switch (a->getType())
+		{
 		case AbilityResource::tDAMAGE:
-			result = hpCurrent;
-			hpCurrent -= a->getVal();
-			if (hpCurrent < 0)hpCurrent = 0;
-			else result = a->getVal();
+			somaticDamage = a->getSomaticVal() - (4*getAttr(STR).getCur());
+			etherealDamage = a->getEtherealVal();
+			if (somaticDamage < 0)
+				somaticDamage = 0;
+			if (etherealDamage < 0)
+				etherealDamage = 0;
+			result = hpCurrent - somaticDamage - etherealDamage;
+			hpCurrent = result;
+			if (hpCurrent < 0)
+				hpCurrent = 0;
 			break;
 		case AbilityResource::tHEALING:
-			std::cout << "Prev HP: " << hpCurrent << std::endl;
-			result = hpMax - hpCurrent;
-			hpCurrent += a->getVal();
-			if (hpCurrent > hpMax) hpCurrent = hpMax;
-			else result = a->getVal();
-			std::cout << "Cur HP: " << hpCurrent << std::endl;
-			break;
-		case AbilityResource::tESCAPE:
-			i = rand() % 100;
-			if (i > a->getVal()) result = -1; // failed escape
-			else result = -2; // successful escape
-			break;
-		case AbilityResource::tDEFENSE:
-			buff[ENERGYREGEN]++;
-			result = 0;
-			break;
-		case AbilityResource::tSUMMON:
-			break;
-		default:
-			std::cout << "unimplemented ability type!" << std::endl;
+			result = a->getEtherealVal();
+			hpCurrent += result;
+			if (hpCurrent > hpMax)
+				hpCurrent = hpMax;
 			break;
 		}
 
@@ -64,20 +55,25 @@
 	}
 
 
-	void Character::checkStatus() {
-		if (hpCurrent < 0) hpCurrent = 0;
-		else if (hpCurrent > hpMax) hpCurrent = hpMax;
-		if (mpCurrent < 0) mpCurrent = 0;
-		else if (mpCurrent > mpMax) mpCurrent = mpMax;
-		if (energyCurrent < 0) energyCurrent = 0;
-		else if (energyCurrent > energyMax) energyCurrent = energyMax;
+	void Character::checkStatus()
+	{
+		if (hpCurrent < 0)
+			hpCurrent = 0;
+		else if (hpCurrent > hpMax)
+			hpCurrent = hpMax;
+		if (spiritCurrent < 0)
+			spiritCurrent = 0;
+		else if (spiritCurrent > spiritMax)
+			spiritCurrent = spiritMax;
 	}
 	int Character::isAlive() { return hpCurrent>0; }
 	
 	
-	void Character::learnAbility(int a) {
-		Ability abil = Ability(a, AbilityResource::abilityAttr[a], attributes);
-		for (auto& i : abilities) {
+	void Character::learnAbility(int a)
+	{
+		Ability abil = Ability(a);
+		for (auto& i : abilities)
+		{
 			if (i.cmp(a)) {
 				i = abil;//used for updating learned abilities
 				return;
@@ -87,34 +83,40 @@
 		abil_helper[a] = (int)abilities.size() - 1;
 	}
 
-	int Character::updateEnergy(Ability* a) {
-		if (a == nullptr) { // for updating energy between turns
-			int temp = energyRegen + buff[ENERGYREGEN];
-			energyCurrent += (temp >= 0) ? temp : 0;
-			if (energyCurrent > energyMax) energyCurrent = energyMax;
+	int Character::updateSpirit(Ability* a)
+	{
+		if (a == nullptr)
+		{ // for updating energy between turns
+			int temp = spiritRegen + buff[ENERGYREGEN];
+			spiritCurrent += (temp >= 0) ? temp : 0;
+			if (spiritCurrent > spiritMax)
+				spiritCurrent = spiritMax;
 			buff[ENERGYREGEN] = 0;
 
 		}
-		else {
-			if (energyCurrent < a->getEnergyCost())
+		else
+		{
+			if (spiritCurrent < a->getSpiritCost())
 				return -1;
-			energyCurrent -= a->getEnergyCost();
+			spiritCurrent -= a->getSpiritCost();
 		}
-		return energyCurrent;
+		return spiritCurrent;
 	}
 	
 	
 	//*/
-	std::string Character::toString() {
+	std::string Character::toString()
+	{
 		std::string s = "Name: " + name + "\n";
 		s += "HP: " + std::to_string(getHPCurrent()) + "/" + std::to_string(getHPMax())+"\n";
-		s += "MP: " + std::to_string(getMPCurrent()) + "/" + std::to_string(getMPMax()) + "\n";
-		s += "Energy: " + std::to_string(getEnergyCurrent()) + "/" + std::to_string(getEnergyMax()) + " Energy Regenerated: " + std::to_string(energyRegen) + "\n";
-		for (auto i : attributes) {
+		s += "Spirit: " + std::to_string(getSpiritCurrent()) + "/" + std::to_string(getSpiritMax()) + "\n";
+		for (auto i : attributes)
+		{
 			s += i.toString() + "\n";
 		}
 		s += "Current Status: ";
-		if (getStatus() == 0) {
+		if (getStatus() == 0)
+		{
 			s += "Normal\n";
 		}
 		return s;
@@ -124,18 +126,17 @@
 	int Character::getHelp(int n) { return abil_helper[n]; }
 	int Character::getDex() { return attributes[DEX].current;}
 	int Character::getHPMax() { return hpMax; }
-	int Character::getMPMax() { return mpMax; }
-	int Character::getEnergyMax() { return energyMax; }
+	int Character::getSpiritMax() { return spiritMax; }
 	int Character::getStatus() { return 0; }
-	void Character::setHPMax() { hpMax = 100 * attributes[CON].current; }
-	void Character::setMPMax() { mpMax = 100 * attributes[INT].current; }
-	void Character::setEnergyMax() { energyMax = 50 + attributes[DEX].current; }
-	void Character::refillEnergy() { energyCurrent = energyMax;	}
+	void Character::setHPMax() { hpMax = 100 + 20 * attributes[CON].current; }
+	void Character::setHPRegen() { hpRegen = 6 + attributes[CON].current * attributes[CON].current; }
+	void Character::setSpiritMax() { spiritMax = 40 + attributes[INT].current; }
+	void Character::setSpiritRegen() { spiritRegen = 6 + (2 * attributes[CON].current); }
+	void Character::refillSpirit() { spiritCurrent = spiritMax;	}
 	int Character::getSpriteSheetNumber() { return spriteSheetNumber; }
 	void Character::setSpriteSheetNumber(int newNum){ spriteSheetNumber = newNum; }
 	int Character::getHPCurrent() { return hpCurrent; }
-	int Character::getMPCurrent() { return mpCurrent; }
-	int Character::getEnergyCurrent() { return energyCurrent;  }
+	int Character::getSpiritCurrent() { return spiritCurrent; }
 	int Character::getNumAnimationFrames() { return spriteImages.at(spriteSheetNumber); }
 	unsigned int Character::getTimeBetweenAnimations() { return timeBetweenAnimations; }
 	int Character::getImageWidth() { return spriteWidths.at(spriteSheetNumber); }

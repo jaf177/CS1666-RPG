@@ -10,17 +10,6 @@ QueueManager::QueueManager(vector<Character *> c)
 	insertionSort(nextTurn, (int)nextTurn.size());
 }
 
-QueueManager::~QueueManager()
-{
-
-}
-
-
-void QueueManager::createRounds(vector<Character*> c)
-{
-
-}
-
 void QueueManager::changeRounds()
 {
 	vectorCopy(currTurn, nextTurn);
@@ -58,16 +47,6 @@ void QueueManager::vectorCopy(vector<Character*>& cT, vector<Character*>& nT)
 	{
 		cT.push_back(nT[i]);
 	}
-}
-
-CombatManager::CombatManager()
-{
-
-}
-
-CombatManager::~CombatManager()
-{
-
 }
 
 int CombatManager::checkCombatStatus() {
@@ -117,7 +96,8 @@ enum BattleState
 
 BattleState m_currentState = BATTLE;
 
-int CombatManager::takeActionByAI(Character* c, int EnemyActionOrderCount) {
+int CombatManager::takeActionByAI(Character* c, int EnemyActionOrderCount)
+{
 	while (c->getEnergyCurrent() != 0 && ParticipantsStatus[enemy_index[EnemyActionOrderCount]] == IN_COMBAT) {
 		// AI decides which action to take
 		Action ActionToTake = ActionByAI(c, EnemyActionOrderCount);
@@ -643,30 +623,20 @@ void CombatManager::textMain(bool& printed, bool initialText, int number) {
 }
 
 
-int CombatManager::combatMain(std::vector<Character*>& p) 
+int CombatManager::combatMain(Player*& playerOne, Cluster*& enemyCluster)
 {
 	initialText = true;
-	participants = p;
+	vector<Enemy*> allEnemies = enemyCluster->getEnemiesInCluster();
 
 	std::cerr << participants.size() << std::endl;
-	if (participants[0] != nullptr) {
+	if (participants[0] != nullptr)
+	{
 		std::cerr << participants[0]->toString() << std::endl;
 	}
 
 	//initialize enemy_index and player_index
-	for (int i = 0; i < participants.size(); i++) {
-		ParticipantsStatus.push_back(IN_COMBAT);
-		if (participants[i]->is_Enemy()) {
-			enemy_index.push_back(i);
-			//Enemies.push_back((Enemy*)participants[i]);
-			livingCount[ENEMY]++;
-		}
-		else {
-			player_index.push_back(i);
-			//Players.push_back((Player*)participants[i]);
-			livingCount[PLAYER]++;
-		}
-	}
+	livingCount[PLAYER] = 1;
+	livingCount[ENEMY] = allEnemies.size();
 
 	int charImageX = 0;
 	int charImageY = 0;
@@ -677,23 +647,9 @@ int CombatManager::combatMain(std::vector<Character*>& p)
 	int delaysPerFrame = 0;
 	int frame = 0;
 	
-	/**
-	*	Combat Manager - Start Battle:
-						get participants
-						display combat UI
-						pre-combat effect calcuation
-						create queue
-						start pre-turn of first from queue
-						*/
-
-	// Create Enemy within combat class. Could be subject to change 
-	// Set up a Character array and populate it (not sorted by dex) 
-	//Character participants[2];
-	//participants[0] = (Character*)(new Player("nlf4", 1, 1, 1, 1,1));
-	//participants[1] = (Character*)(new Enemy());
 	
 	inCombat = true;
-	// Create QueueManager obj which contains sorting of participant array. 
+	// Create QueueManager obj which contains sorting of participant array.
 	QueueManager qm = QueueManager(participants);
 	//LoadTexture background;
 	SDL_Event e;
@@ -859,7 +815,8 @@ int CombatManager::combatMain(std::vector<Character*>& p)
 						m_combatGraphics.clean();
 						return result_temp;
 					}
-					switch (int result_temp = updateStatus()) {
+					switch (int result_temp = updateStatus())
+					{
 					case IN_COMBAT:
 						break;
 					default:

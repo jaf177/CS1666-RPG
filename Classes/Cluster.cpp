@@ -227,3 +227,7 @@ void Cluster::moveSteps(double time)
 		}
 	}
 }
+vector<Enemy*> Cluster::getEnemiesInCluster()
+{
+	return characterGroup;
+}

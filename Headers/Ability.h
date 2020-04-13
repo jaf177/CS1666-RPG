@@ -12,9 +12,7 @@
 
 class Ability {
 public:
-	Ability(int n, std::vector<int> re, std::vector<Attribute> attr);
-	Ability(int n, std::string d, int eC, int cD, int v, int t);
-	Ability();
+	Ability(int);
 
 	// compare function, return true if names are the same, otherwise false
 	bool cmp(Ability a);
@@ -22,10 +20,11 @@ public:
 	
 	//getters
 	int getName();
-	int getEnergyCost();
-	int getMPCost();
+	int getSpiritCost();
 	int getCD();
-	int getVal();
+	int getSomaticVal();
+	int getEtherealVal();
+	int getTotalVal();
 	int getType();
 	int getMPSTaskType();
 
@@ -35,11 +34,11 @@ public:
 private:
 	int name;
 	std::string description;
-	int energyCost;
-	int MPCost;
-	int cooldown; //might not add
-	int baseValue;
-	int value;	// the possiblity of succes for escape and summon
+	int spiritCost;
+	int cooldown;
+	int baseSomaticValue;
+	int baseEtherealValue;
+	int total_value;
 	int type;
 	int MPSTaskType;
 
