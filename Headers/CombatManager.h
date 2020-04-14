@@ -24,8 +24,6 @@ using namespace std;
 class CombatManager
 {
 public:
-	CombatManager();
-	~CombatManager();
 
 	int checkCombatStatus();
 	int updateStatus();
@@ -36,7 +34,7 @@ public:
 	int performEvent(Character *c, string option, int optNum);
 	int takeAction(Character* c, vector<Button *> buttons, SDL_Event e);
 	int textAction(Character* c);
-	int combatMain(Player*&,Cluster*&);
+	int combatMain(Player*,Cluster*);
 	void textAttributes(Character *c, int optNum);
 	void textMain(bool& printed, bool initialText, int number);
 	//void setNewButtons(vector<Button*>& buttons, int t);
@@ -71,19 +69,5 @@ private:
 	Mix_Chunk *gBSound = NULL;
 
 	CombatAI AI;
-};
-class QueueManager
-{
-public:
-	
-	vector<Character*> currTurn;
-	vector<Character*> nextTurn;
-	QueueManager(vector<Character*> c);
-	~QueueManager();
-	void createRounds(vector<Character*> c);
-	void changeRounds();
-	void vectorCopy(vector<Character*>& cT, vector<Character*>& nT);
-private:
-	void insertionSort(vector<Character*>& turn, int n);
 };
 #endif

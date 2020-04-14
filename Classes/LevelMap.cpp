@@ -1,235 +1,315 @@
-#include <vector>
-#include <stdlib.h>
-#include <time.h>
-#include <iostream>
-#include <fstream>
-#include <string>
+#include "../Headers/LevelMap.h"
 using namespace std;
 
-/*
-
-Current Procedural Generation Was Created With A Huge Bias Toward Creating Maps That Are Mainly Walkable Blocks
-
-In Upcoming Patches : Use DFS To Guarantee All Walkable Blocks Are Reachable
-
-*/
-
-
-static void CreateLevel(int W, int H, int LEVELNUM)
+LevelMap::LevelMap(int W, int H, int num)
 {
-	string fileName = "Maps/custom_map" + to_string(LEVELNUM) + ".txt";
+	tiles = vector<vector<int>>(H, vector<int>(W, -1));
+	map_width = W;
+	map_height = H;
+	map_num = num;
+	walkableTiles = 0;
+}
+int LevelMap::Depth(int startX, int startY)
+{
+	if(rand()%2 == 1)
+		tiles.at(startY).at(startX) = 0;
+	else tiles.at(startY).at(startX) = 14;
+	walkableTiles++;
+	if (walkableTiles > (map_width * map_height) / 2)
+		return -1;
+	int direction = rand() % 4;
+	for (int directionsTested = 0; directionsTested < 4; directionsTested++)
+	{
+		switch (direction)
+		{
+		case 0:
+			if (startY > 0 && tiles.at(startY - 1).at(startX) == -1)
+				Depth(startX, startY - 1);
+			break;
+		case 1:
+			if (startX < map_width-1 && tiles.at(startY).at(startX+1) == -1)
+				Depth(startX+1, startY);
+			break;
+		case 2:
+			if (startY < map_height-1 && tiles.at(startY + 1).at(startX) == -1)
+				Depth(startX, startY + 1);
+			break;
+		case 3:
+			if (startX > 0 && tiles.at(startY).at(startX-1) == -1)
+				Depth(startX - 1, startY);
+			break;
+		}
+		if (walkableTiles > (map_width * map_height) / 2)
+			return -1;
+		direction = (direction + 1) % 4;
+	}
+	return walkableTiles;
+}
+ void LevelMap::CreateLevel()
+{
+	string fileName = "Maps/custom_map" + to_string(map_num) + ".txt";
 	ofstream file(fileName);
 	if (file.is_open())
 	{
 		srand(time(NULL));
-		int num_walkable_tiles = 0;
-		while ((num_walkable_tiles * 2) < (W*H))
+		/*
+		Create Walkable Path
+		*/
+		
+		int startX = rand() % map_width;
+		int startY = rand() % map_height;
+		
+		Depth(startX, startY);
+		cout << walkableTiles<< " Walkable Tiles" << endl;
+		/*
+		Fill In Non Walkable Tiles
+		*/
+		for (int currentY = 0; currentY < map_height; currentY++)
 		{
-			vector<vector<int>> tiles(H, vector<int>(W, 0));
-			num_walkable_tiles = 0;
-			for (int currentY = 0; currentY < H; currentY++)
+			for (int currentX = 0; currentX < map_width; currentX++)
 			{
-				for (int currentX = 0; currentX < W; currentX++)
+				if (tiles.at(currentY).at(currentX) == -1)
 				{
-					vector<int> legalTiles;
-					if (currentX == 0)
+					int legalTile;
+					if ((currentY == 1 || currentY == 2)&&(tiles.at(currentY-1).at(currentX)==0|| tiles.at(currentY - 1).at(currentX) == 14))
 					{
-						if (currentY == 0)
-						{
-							// This is the top left corner
-							tiles.at(currentY).at(currentX) = 0;
-						}
-						else
-						{
-							// This is the leftmost tile
-							switch (tiles.at(currentY - 1).at(currentX))
-							{
-								// GRASS - GRASS
-							case 0:
-							case 4:
-							case 5:
-							case 6:
-							case 14:
-							case 15:
-								legalTiles = { 0,3,7,8,14,15};
-								break;
-								// WATER - WATER
-							case 1:
-							case 3:
-							case 12:
-							case 13:
-								legalTiles = { 1,4,10,11 };
-								break;
-								//GRASS - WATER
-							case 2:
-							case 7:
-							case 10:
-								legalTiles = { 2, 5, 12 };
-								break;
-								// WATER - GRASS
-							case 8:
-							case 9:
-							case 11:
-								legalTiles = { 6, 9, 13 };
-								break;
-							}
-							tiles.at(currentY).at(currentX) = legalTiles.at(rand() % legalTiles.size());
-						}
+						if (rand() % 2 == 1)
+							legalTile = 0;
+						else legalTile = 14;
 					}
 					else
 					{
-						if (currentY == 0)
-						{
-							// This is the topmost tile
-							switch (tiles.at(currentY).at(currentX - 1))
-							{
-								// GRASS - GRASS
-							case 0:
-							case 6:
-							case 8:
-							case 9:
-							case 14:
-							case 15:
-								legalTiles = { 0,2,5,7,14,15 };
-								break;
-								// WATER - WATER
-							case 1:
-							case 2:
-							case 10:
-							case 12:
-								legalTiles = { 1, 9,11,13 };
-								break;
-								//GRASS - WATER
-							case 3:
-							case 7:
-							case 13:
-								legalTiles = { 3,8,12 };
-								break;
-								// WATER - GRASS
-							case 4:
-							case 5:
-							case 11:
-								legalTiles = { 4,6,10 };
-								break;
-							}
-							tiles.at(currentY).at(currentX) = legalTiles.at(rand() % legalTiles.size());
-						}
-						else
+						bool hasWalkableNeighbor = false;
+						int type_TL = rand() % 2, type_TR = rand() % 2, type_BL = rand() % 2, type_BR = rand() % 2;
+
+						// Look at 5 adjacent tiles to determine legal types
+						// Top, Left, Right, Bottom, and Bottom Right
+						// Never need to look at TopLeft, TopRight, or BottomLeft because their information is already provided.
+						// type 1 = water , type 0 = grass
+
+						if (currentY > 0 && tiles.at(currentY - 1).at(currentX) != -1) // TOP
 						{
 							switch (tiles.at(currentY - 1).at(currentX))
 							{
-								// GRASS - GRASS
 							case 0:
-							case 4:
+							case 14:
+								hasWalkableNeighbor = true;
+							case 15:
 							case 5:
 							case 6:
-							case 14:
-							case 15:
-								switch (tiles.at(currentY).at(currentX - 1))
-								{
-									// GRASS - GRASS - GRASS
-								case 0:
-								case 6:
-								case 8:
-								case 9:
-								case 14:
-								case 15:
-									legalTiles = { 0,7,14,15 };
-									break;
-									// GRASS - GRASS - WATER
-								case 3:
-								case 7:
-								case 13:
-									legalTiles = { 3,8 };
-									break;
-								}
+							case 4:
+								type_TL = 0;
+								type_TR = 0;
 								break;
-								// WATER - WATER
 							case 1:
-							case 3:
-							case 12:
 							case 13:
-								switch (tiles.at(currentY).at(currentX - 1))
-								{
-									// WATER - WATER - GRASS
-								case 4:
-								case 5:
-								case 11:
-									legalTiles = { 4,10, };
-									break;
-									// WATER - WATER - WATER
-								case 1:
-								case 2:
-								case 10:
-								case 12:
-									legalTiles = { 1, 11 };
-									break;
-								}
+							case 12:
+							case 3:
+								type_TL = 1;
+								type_TR = 1;
 								break;
-								//GRASS - WATER
 							case 2:
 							case 7:
 							case 10:
-								switch (tiles.at(currentY).at(currentX - 1))
-								{
-									// GRASS - WATER - GRASS
-								case 0:
-								case 6:
-								case 8:
-								case 9:
-								case 14:
-								case 15:
-									legalTiles = { 2, 5 };
-									break;
-									// GRASS - WATER - WATER
-								case 3:
-								case 7:
-								case 13:
-									legalTiles = { 12 };
-									break;
-								}
+							case 16:
+								type_TL = 0;
+								type_TR = 1;
 								break;
-								// WATER - GRASS
 							case 8:
 							case 9:
 							case 11:
-								switch (tiles.at(currentY).at(currentX - 1))
-								{
-									// WATER - GRASS - GRASS
-								case 4:
-								case 5:
-								case 11:
-									legalTiles = { 6 };
-									break;
-									// WATER - GRASS - WATER
-								case 1:
-								case 2:
-								case 10:
-								case 12:
-									legalTiles = { 9,13 };
-									break;
-								}
+							case 17:
+								type_TL = 1;
+								type_TR = 0;
 								break;
 							}
-							int above = tiles.at(currentY - 1).at(currentX);
-							int side = tiles.at(currentY).at(currentX - 1);
-							int corner = tiles.at(currentY - 1).at(currentX - 1);
-							if (legalTiles.size() == 0)
-								legalTiles = { 0 };
-							if (find(legalTiles.begin(), legalTiles.end(), 0) != legalTiles.end()&(rand() % 100 + 1 < 99))
-							{
-									tiles.at(currentY).at(currentX) = 0;
-							}
-							else tiles.at(currentY).at(currentX) = legalTiles.at(rand() % legalTiles.size());
 						}
+						if (currentY < map_height-1 && tiles.at(currentY + 1).at(currentX) != -1) // BOTTOM
+						{
+							switch (tiles.at(currentY + 1).at(currentX))
+							{
+							case 0:
+							case 14:
+								hasWalkableNeighbor = true;
+							case 15:
+							case 7:
+							case 8:
+							case 3:
+								type_BL = 0;
+								type_BR = 0;
+								break;
+							case 1:
+							case 11:
+							case 10:
+							case 4:
+								type_BL = 1;
+								type_BR = 1;
+								break;
+							case 5:
+							case 2:
+							case 17:
+							case 12:
+								type_BL = 0;
+								type_BR = 1;
+								break;
+							case 13:
+							case 9:
+							case 6:
+							case 16:
+								type_BL = 1;
+								type_BR = 0;
+								break;
+							}
+						}
+						if (currentX > 0 && tiles.at(currentY).at(currentX - 1) != -1) // LEFT
+						{
+							switch (tiles.at(currentY).at(currentX - 1))
+							{
+							case 0:
+							case 14:
+								hasWalkableNeighbor = true;
+							case 15:
+							case 9:
+							case 6:
+							case 8:
+								type_TL = 0;
+								type_BL = 0;
+								break;
+							case 1:
+							case 2:
+							case 12:
+							case 10:
+								type_TL = 1;
+								type_BL = 1;
+								break;
+							case 4:
+							case 5:
+							case 11:
+							case 17:
+								type_TL = 1;
+								type_BL = 0;
+								break;
+							case 3:
+							case 7:
+							case 16:
+							case 13:
+								type_TL = 0;
+								type_BL = 1;
+								break;
+							}
+						}
+						if (currentX < map_width-1 && tiles.at(currentY).at(currentX + 1) != -1) // RIGHT
+						{
+							switch (tiles.at(currentY).at(currentX + 1))
+							{
+							case 0:
+							case 14:
+								hasWalkableNeighbor = true;
+							case 15:
+							case 7:
+							case 5:
+							case 2:
+								type_TR = 0;
+								type_BR = 0;
+								break;
+							case 1:
+							case 11:
+							case 13:
+							case 9:
+								type_TR = 1;
+								type_BR = 1;
+								break;
+							case 10:
+							case 6:
+							case 4:
+							case 16:
+								type_TR = 1;
+								type_BR = 0;
+								break;
+							case 8:
+							case 3:
+							case 17:
+							case 12:
+								type_TR = 0;
+								type_BR = 1;
+								break;
+							}
+						}
+						if (currentX < map_width-1 && currentY < map_height-1 && tiles.at(currentY+1).at(currentX + 1) != -1) // BOTTOM RIGHT
+						{
+							switch (tiles.at(currentY+1).at(currentX + 1))
+							{
+							case 0:
+							case 14:
+								hasWalkableNeighbor = true;
+							case 15:
+							case 7:
+							case 8:
+							case 3:
+							case 5:
+							case 2:
+							case 17:
+							case 12:
+								type_BR = 0;
+								break;
+							case 1:
+							case 11:
+							case 10:
+							case 4:
+							case 13:
+							case 9:
+							case 6:
+							case 16:
+								type_BR = 1;
+								break;
+							}
+						}
+
+						if (type_TL == 0 && type_TR == 0 && type_BL == 0 && type_BR == 0)
+						{
+							if (hasWalkableNeighbor)
+								legalTile = 0;
+							else legalTile = 15;
+						}
+						else if (type_TL == 0 && type_TR == 0 && type_BL == 0 && type_BR == 1)
+							legalTile = 7;
+						else if (type_TL == 0 && type_TR == 0 && type_BL == 1 && type_BR == 0)
+							legalTile = 8;
+						else if (type_TL == 0 && type_TR == 0 && type_BL == 1 && type_BR == 1)
+							legalTile = 3;
+						else if (type_TL == 0 && type_TR == 1 && type_BL == 0 && type_BR == 0)
+							legalTile = 5;
+						else if (type_TL == 0 && type_TR == 1 && type_BL == 0 && type_BR == 1)
+							legalTile = 2;
+						else if (type_TL == 0 && type_TR == 1 && type_BL == 1 && type_BR == 0)
+							legalTile = 17;
+						else if (type_TL == 0 && type_TR == 1 && type_BL == 1 && type_BR == 1)
+							legalTile = 12;
+						else if (type_TL == 1 && type_TR == 0 && type_BL == 0 && type_BR == 0)
+							legalTile = 6;
+						else if (type_TL == 1 && type_TR == 0 && type_BL == 0 && type_BR == 1)
+							legalTile = 16;
+						else if (type_TL == 1 && type_TR == 0 && type_BL == 1 && type_BR == 0)
+							legalTile = 9;
+						else if (type_TL == 1 && type_TR == 0 && type_BL == 1 && type_BR == 1)
+							legalTile = 13;
+						else if (type_TL == 1 && type_TR == 1 && type_BL == 0 && type_BR == 0)
+							legalTile = 4;
+						else if (type_TL == 1 && type_TR == 1 && type_BL == 0 && type_BR == 1)
+							legalTile = 10;
+						else if (type_TL == 1 && type_TR == 1 && type_BL == 1 && type_BR == 0)
+							legalTile = 11;
+						else if (type_TL == 1 && type_TR == 1 && type_BL == 1 && type_BR == 1)
+							legalTile = 1;
+						else cout << "ERR" << endl;
 					}
-					if (tiles.at(currentY).at(currentX) == 0|| tiles.at(currentY).at(currentX) == 14|| tiles.at(currentY).at(currentX) == 15)
-						num_walkable_tiles++;
-					file << to_string(tiles.at(currentY).at(currentX)) + " ";
+					tiles.at(currentY).at(currentX) = legalTile;
+					file << to_string(legalTile) + " ";
 				}
-				file << endl;
+				else file << to_string(tiles.at(currentY).at(currentX)) + " ";
+				
 			}
-			cout << num_walkable_tiles << endl;
+			file << endl;
 		}
 		file.close();
 	}

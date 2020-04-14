@@ -1,53 +1,5 @@
 #include "../Headers/CombatManager.h"
 
-QueueManager::QueueManager(vector<Character *> c)
-{
-	for (auto C : c) {
-		currTurn.push_back(C);
-		nextTurn.push_back(C);
-	}
-	insertionSort(currTurn, (int)currTurn.size());
-	insertionSort(nextTurn, (int)nextTurn.size());
-}
-
-void QueueManager::changeRounds()
-{
-	vectorCopy(currTurn, nextTurn);
-	insertionSort(nextTurn, (int)nextTurn.size());
-}
-
-void QueueManager::insertionSort(std::vector<Character*>& turn, int n)
-{
-	int i, j;
-	for (i = 1; i < n; i++)
-	{
-		//key = turn[i];
-		j = i - 1;
-		/*
-		using namespace std;
-		Enemy* tempp = (Enemy*)turn[j];
-		cout << tempp->toString() << endl;
-		cout << turn.size() << " "<< j<<endl;
-		cout << turn[j]->getDex() << endl;
-		cout << turn[i]->toString() << endl;
-		//*/
-		while (j >= 0 && turn[j]->getDex() > turn[i]->getDex())
-		{
-			turn[j + 1] = turn[j];
-			j = j - 1;
-		}
-		turn[j + 1] = turn[i];
-	}
-}
-
-void QueueManager::vectorCopy(vector<Character*>& cT, vector<Character*>& nT)
-{
-	cT.erase(cT.begin(), cT.end());
-	for (int i = 0; i < nT.size(); i++)
-	{
-		cT.push_back(nT[i]);
-	}
-}
 
 int CombatManager::checkCombatStatus() {
 	if (livingCount[PLAYER] == 0) return ENEMY_WINS;
@@ -69,7 +21,7 @@ int CombatManager::updateStatus() {
 		}
 		else
 		{
-			c->updateEnergy(nullptr);
+			c->updateSpirit(nullptr);
 		}
 	}
 	return checkCombatStatus();
@@ -98,7 +50,7 @@ BattleState m_currentState = BATTLE;
 
 int CombatManager::takeActionByAI(Character* c, int EnemyActionOrderCount)
 {
-	while (c->getEnergyCurrent() != 0 && ParticipantsStatus[enemy_index[EnemyActionOrderCount]] == IN_COMBAT) {
+	while (c->getSpiritCurrent() != 0 && ParticipantsStatus[enemy_index[EnemyActionOrderCount]] == IN_COMBAT) {
 		// AI decides which action to take
 		Action ActionToTake = ActionByAI(c, EnemyActionOrderCount);
 		std::cout << c->toString() << std::endl;
@@ -106,14 +58,14 @@ int CombatManager::takeActionByAI(Character* c, int EnemyActionOrderCount)
 		std::vector<Character*> tars = ActionToTake.getTar();
 		int TarNum = (int)tars.size();
 		Ability* abil = ActionToTake.getAbil();
-		std::cout << c->getEnergyCurrent() << " " << abil->getEnergyCost() << std::endl;
-		if (c->getEnergyCurrent() < abil->getEnergyCost()) {
+		std::cout << c->getSpiritCurrent() << " " << abil->getSpiritCost() << std::endl;
+		if (c->getSpiritCurrent() < abil->getSpiritCost()) {
 			m_combatDialogManager.ClearEvents();
 			return IN_COMBAT;
 		}
 		else {
 			for (int i = 0; i < TarNum; i++) { // act on every target and output result
-				c->updateEnergy(abil);
+				c->updateSpirit(abil);
 				int result = tars[i]->beingTarget(abil);
 				// output ability name
 				//output target
@@ -168,7 +120,7 @@ int CombatManager::takeActionByAI(Character* c, int EnemyActionOrderCount)
 					break;
 				case AbilityResource::tDEFENSE:
 					// display text before returning
-					stmp << c->getName() + "'s Energy Regeneration for next round will be increased.";
+					stmp << c->getName() + "'s Spirit Regeneration for next round will be increased.";
 					m_combatDialogManager.AddMessage(stmp.str());
 					m_combatDialogManager.Update(1.0f / 60.0f);
 					m_combatGraphics.addTextsToRender(m_combatDialogManager.GetTextToRender());
@@ -237,7 +189,7 @@ int CombatManager::textAction(Character* c) {
 
 	if (c->is_Enemy() == true)
 	{
-		/*while (c->getEnergyCurrent() != 0 && ParticipantsStatus[enemy_index[EnemyActionOrderCount]] == IN_COMBAT) {
+		/*while (c->getSpiritCurrent() != 0 && ParticipantsStatus[enemy_index[EnemyActionOrderCount]] == IN_COMBAT) {
 			//Enemy takes action
 
 			// AI decides which action to take 
@@ -248,7 +200,7 @@ int CombatManager::textAction(Character* c) {
 			Ability* abil = ActionToTake.getAbil();
 			for (int i = 0; i < TarNum; i++) { // act on every target and output result
 				int result = tars[i]->beingTarget(abil);
-				c->updateEnergy(abil);
+				c->updateSpirit(abil);
 				// output to console 
 				// output ability name
 				std::cout << c->getName() << " uses " << AbilityResource::abilityNames[abil->getName()] << std::endl;
@@ -286,7 +238,7 @@ int CombatManager::textAction(Character* c) {
 					}
 					break;
 				case AbilityResource::tDEFENSE:
-					std::cout << c->getName() << "'s Energy Regeneration for next round will be increased." << std::endl;
+					std::cout << c->getName() << "'s Spirit Regeneration for next round will be increased." << std::endl;
 					return IN_COMBAT;
 					break;
 				default:
@@ -427,8 +379,8 @@ int CombatManager::textAction(Character* c) {
 							break;
 						}
 						a_cur = abil_temp[helper[abil_selection]];
-						if (c->getEnergyCurrent() < a_cur.getEnergyCost()) { // if not enough energy
-							std::cout << AbilityResource::abilityNames[a_cur.getName()] << " needs " << a_cur.getEnergyCost() << ", you only have " << c->getEnergyCurrent() << " YOU FOOL" << std::endl;
+						if (c->getSpiritCurrent() < a_cur.getSpiritCost()) { // if not enough Spirit
+							std::cout << AbilityResource::abilityNames[a_cur.getName()] << " needs " << a_cur.getSpiritCost() << ", you only have " << c->getSpiritCurrent() << " YOU FOOL" << std::endl;
 						}
 						else break;
 					}
@@ -446,7 +398,7 @@ int CombatManager::textAction(Character* c) {
 				}
 
 				if (ReturningToMainMenu) break;
-				c->updateEnergy(&a_cur);
+				c->updateSpirit(&a_cur);
 
 
 				switch (abil_temp[helper[abil_selection]].getType()) {
@@ -471,7 +423,7 @@ int CombatManager::textAction(Character* c) {
 					break;
 				case AbilityResource::tDEFENSE:
 					c->beingTarget(&abil_temp[helper[abil_selection]]);
-					std::cout << "Your Energy Regeneration for next round will be increased you tactical fool" << std::endl;
+					std::cout << "Your Spirit Regeneration for next round will be increased you tactical fool" << std::endl;
 					takingAction = false;
 					break;
 				default:
@@ -503,7 +455,7 @@ int CombatManager::textAction(Character* c) {
 				break;
 			}
 			if (!ReturningToMainMenu) {
-				if (c->getEnergyCurrent() == 0) {
+				if (c->getSpiritCurrent() == 0) {
 					takingAction = false;
 					return IN_COMBAT;
 				}
@@ -585,13 +537,17 @@ void CombatManager::textAttributes(Character *c, int optNum)
 	std::vector<Ability> abil_temp = c->getAbilities(); // get ability lists of the character
 	std::vector<int> helper; // stores relative index of the abilites within the same attribute category
 	int k = 1;
-	for (int i = 0; i < abil_temp.size(); i++) {
-		if (optNum == AbilityResource::abilityAttr[abil_temp[i].getName()][0]) { //if the ability is of current attribute
+	for (int i = 0; i < abil_temp.size(); i++)
+	{
+		/*
+		if (optNum == AbilityResource::abilityAttr[abil_temp[i].getName()][0])
+		{ //if the ability is of current attribute
 			abil = abil_temp[i];
 			//std::cout << k << ". " << AbilityResource::abilityNames[abil_temp[i].getName()] << std::endl; // print as an option
 			options.push_back(AbilityResource::abilityNames[abil_temp[i].getName()]);
 			helper.push_back(i); // stores index to helper vector
 		}
+		*/
 	}
 	options.push_back("Back");
 	m_combatDialogManager.AddSelectableOption("Choose your attack", options);
@@ -623,7 +579,7 @@ void CombatManager::textMain(bool& printed, bool initialText, int number) {
 }
 
 
-int CombatManager::combatMain(Player*& playerOne, Cluster*& enemyCluster)
+int CombatManager::combatMain(Player* playerOne, Cluster* enemyCluster)
 {
 	initialText = true;
 	vector<Enemy*> allEnemies = enemyCluster->getEnemiesInCluster();
@@ -649,25 +605,16 @@ int CombatManager::combatMain(Player*& playerOne, Cluster*& enemyCluster)
 	
 	
 	inCombat = true;
-	// Create QueueManager obj which contains sorting of participant array.
-	QueueManager qm = QueueManager(participants);
 	//LoadTexture background;
 	SDL_Event e;
-	//background.loadFromFile("Images/UI/CombatScene/combatScene.png");
 	
 	TTF_Font* font = Helper::setFont("Fonts/Stacked pixel.ttf", 25);
 	SDL_Color txt_color = {0,0,0,0};
 	
 	int bw = 100;
 	int bh = 50;	
-	bool printed = false; // for text combat ui
+	bool printed = false;
 
-	//OpenGL Setup
-	//glewInit();
-
-	// We shouldn't initialize the graphics class every time we run into a battle. Id recommend initializing it once, then using it
-	// Same goes for the dialog manager.
-	// I'll leave this up to you to do
 	m_combatGraphics.init();
 
 	//Create Player with Player Texture, translate it, then set it to animate the sprite
@@ -684,30 +631,6 @@ int CombatManager::combatMain(Player*& playerOne, Cluster*& enemyCluster)
 		m_combatGraphics.setIdleAnimationType(enemy[i], 1);
 	}
 
-	/*
-	//Create cone with similar colors, then remove it
-	int cone = m_combatGraphics.genCone(0.5, 1.0, 36, 2, glm::vec4(1.0, 1.0, 0.0, 0.3));
-	m_combatGraphics.setIdleAnimationType(cone, 2);
-	m_combatGraphics.setIdleAnimationMotion(cone, glm::rotate(0.01f, m_combatGraphics.rotateRandom()));
-	m_combatGraphics.removeObject(cone);
-	//Create sphere with similar colorsm then set to animate with motion
-	int sphere = m_combatGraphics.genSphere(0.5, 36, 1, glm::vec4());
-	m_combatGraphics.setIdleAnimationType(sphere, 2);
-	m_combatGraphics.setIdleAnimationMotion(sphere, glm::rotate(0.01f, m_combatGraphics.rotateRandom()));
-	//m_combatGraphics.removeObject(sphere);
-	//Create a cube with random colors
-	int cube = m_combatGraphics.genCube(0, glm::vec4());
-	m_combatGraphics.setIdleAnimationType(cube, 2);
-	m_combatGraphics.setIdleAnimationMotion(cube, glm::rotate(0.01f, m_combatGraphics.rotateRandom()));
-	m_combatGraphics.removeObject(cube);
-	
-	int attack = m_combatGraphics.genCone(0.01, 0.1, 36, 2, glm::vec4(0.0, 0.0, 0.0, 1.0));
-	m_combatGraphics.translateObjectByPixel(attack, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 3, 0.0);
-	m_combatGraphics.setAnimation(attack, 2);
-	m_combatGraphics.setAnimationFrameMax(attack, 30);
-	m_combatGraphics.transformCtm(attack, glm::rotate((float)(-M_PI / 2.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
-	m_combatGraphics.setAnimationMotion(attack, glm::rotate((float)(M_PI / 2.0f), glm::vec3(0.0f, 0.0f, 1.0f)) * glm::translate(glm::mat4(), (1.0f / 30.f) * m_combatGraphics.getVectorFromTo(player, enemy[0])) * glm::rotate((float)(-M_PI / 2.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
-	*/
 	// Set up the combat dialog manager
 	m_combatDialogManager = CombatDialogManager();
 	m_combatDialogManager.SetTimePerCharacter(0.005f);
@@ -996,7 +919,7 @@ int CombatManager::combatMain(Player*& playerOne, Cluster*& enemyCluster)
 			for (int i = (int)player_index.size(); i < participants.size(); i++)
 			{
 				//updateStatus(participants[i]);
-				if (participants[i]->getHPCurrent() != 0 && participants[i]->getEnergyCurrent() != 0) {
+				if (participants[i]->getHPCurrent() != 0 && participants[i]->getSpiritCurrent() != 0) {
 					stringstream ss;
 					switch (int result_temp = takeActionByAI(participants[i], i - (int)player_index.size())) {
 					case IN_COMBAT:
@@ -1039,7 +962,6 @@ int CombatManager::combatMain(Player*& playerOne, Cluster*& enemyCluster)
 			}
 			printed = false;
 			turnOrder = 0;
-			qm.changeRounds();
 		}
 		SDL_Delay(60);
 	}

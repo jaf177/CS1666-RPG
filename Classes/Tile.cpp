@@ -17,58 +17,62 @@ Tile::Tile(int x, int y, int tileType)
 	
 	switch (tileType)
 	{
-	case 15://flower 1
-		texture = flower1;
-		solid = true;
+	case 1://pond WWWW
+		texture = pond;
 		break;
-	case 14://single grass 2 
+	case 11://outside top left edge WWWG
+		texture = OutsideTopLeft;
+		break;
+	case 10://outside top right edge WWGW
+		texture = OutsideTopRight;
+		break;
+	case 4://pond bottom edge WWGG
+		texture = pondBottom;
+		break;
+	case 13://outside Bottom Left edge WGWW
+		texture = OutsideBottomLeft;
+		break;
+	case 9://pond right edge WGWG
+		texture = pondLeft;
+		flip = SDL_FLIP_HORIZONTAL;
+		break;
+	case 6://pond bottom right corner WGGG
+		texture = pondBottomLeft;
+		flip = SDL_FLIP_HORIZONTAL;
+		break;
+	case 12://outside Bottom Right edge GWWW
+		texture = OutsideBottomRight;
+		break;
+	case 16: //water checkerboard WGGW
+		texture = waterchecker;
+		break;
+	case 17: // grass checkerboard GWWG
+		texture = grasschecker;
+		break;
+	case 2://pond left edge GWGW
+		texture = pondLeft;
+		break;
+	case 5://pond bottom left corner GWGG
+		texture = pondBottomLeft;
+		break;
+	case 3://pond top edge GGWW
+		texture = pondTop;
+		break;
+	case 8://pond top right corner GGWG
+		texture = pondTopLeft;
+		flip = SDL_FLIP_HORIZONTAL;
+		break;
+	case 7://pond top left corner GGGW
+		texture = pondTopLeft;
+		break;
+	case 15://flower 1 GGGG
+		texture = flower1;
+		break;
+	case 14://single grass 2 GGGG
 		texture = singleGrass2;
 		solid = true;
 		break;
-	case 13://outside Bottom Left edge
-		texture = OutsideBottomLeft;
-
-		break;
-	case 12://outside Bottom Right edge
-		texture = OutsideBottomRight;
-		break;
-	case 11://outside top left edge
-		texture = OutsideTopLeft;
-		break;
-	case 10://outside top right edge
-		texture = OutsideTopRight;
-		break;
-	case 9://pond right edge
-		texture = pondLeft;
-		flip = SDL_FLIP_HORIZONTAL;
-		break;
-	case 8://pond top right corner
-		texture = pondTopLeft;
-		flip= SDL_FLIP_HORIZONTAL;
-		break;
-	case 7://pond top left corner
-		texture = pondTopLeft;
-		break;
-	case 6://pond bottom right corner
-		texture = pondBottomLeft;
-		flip = SDL_FLIP_HORIZONTAL;
-		break;
-	case 5://pond bottom left corner
-		texture = pondBottomLeft;
-		break;
-	case 4://pond bottom edge
-		texture = pondBottom;
-		break;
-	case 3://pond top edge
-		texture = pondTop;
-		break;
-	case 2://pond left edge
-		texture = pondLeft;
-		break;
-	case 1://pond
-		texture = pond;
-		break;
-	case 0://grass
+	case 0://grass GGGG
 		texture = grass;
 		solid = true;
 		break;
@@ -128,6 +132,11 @@ void Tile::loadTiles()
 
 	flower1 = Helper::loadImage("Images/Tiles/flower1.png", gRenderer);
 
+	specialflower = Helper::loadImage("Images/Tiles/specialflower.png", gRenderer);
+
+	waterchecker = Helper::loadImage("Images/Tiles/waterchecker.png", gRenderer);
+
+	grasschecker = Helper::loadImage("Images/Tiles/grasschecker.png", gRenderer);
 }
 
 

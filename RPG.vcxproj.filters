@@ -352,6 +352,9 @@
     <ClInclude Include="Headers\Point.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Headers\LevelMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\simpleColorShader.frag">

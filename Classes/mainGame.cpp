@@ -24,7 +24,7 @@
 #include "../Headers/Cluster.h"
 #include "../Headers/LoadTexture.h"
 #include "../Headers/ResourceManager/ResourceManager.h"
-#include "../Classes/Levelmap.cpp"
+#include "../Headers/Levelmap.h"
 
 // Function declarations
 
@@ -54,7 +54,7 @@ int OPTION_volume = 6;
 const int OPTION_max_difficulty = 10;
 const int OPTION_min_difficulty = 1;
 int OPTION_difficulty = 5;
-bool OPTION_randomMaps = false;
+bool OPTION_randomMaps = true;
 
 /*
 OPTIONS MENU
@@ -1259,7 +1259,7 @@ int playGame()
 	std::vector<SDL_Rect> HUD_NameRect;
 	std::vector<SDL_Rect> HUD_LevelRect;
 
-	Cluster* CollidingCluster;
+	Cluster* CollidingCluster = NULL;
 	Uint32 timeSinceLastMovement = SDL_GetTicks();
 	Uint32 timeSinceLastAnimation = SDL_GetTicks();
 	Uint32 lastSync = SDL_GetTicks();
@@ -1278,7 +1278,8 @@ int playGame()
 		SDL_Rect* BlockedTiles;
 		if (OPTION_randomMaps)
 		{
-			CreateLevel(MAX_HORIZONTAL_TILES, MAX_VERTICAL_TILES, MAP_INDEX+1);
+			LevelMap levelcreator(MAX_HORIZONTAL_TILES, MAX_VERTICAL_TILES, MAP_INDEX + 1);
+			levelcreator.CreateLevel();
 			BlockedTiles = loadMap(tiles, ALL_CUSTOM_MAPS.at(MAP_INDEX));
 		}
 		else BlockedTiles = loadMap(tiles, ALL_MAPS.at(MAP_INDEX));
@@ -1643,8 +1644,9 @@ int playGame()
 			while (combatStarted)
 			{
 				combatTransition();
-				CombatManager cm;
-				int combatResult = cm.combatMain(player1, CollidingCluster);
+				//CombatManager cm;
+				//int combatResult = cm.combatMain(player1, CollidingCluster);
+				int combatResult = PLAYER_WINS;
 				startMusic("Audio/Song_Overworld.wav", MIX_MAX_VOLUME / 8);
 				Mix_ResumeMusic();
 				timeSinceLastMovement = SDL_GetTicks();
