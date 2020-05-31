@@ -31,6 +31,12 @@ public:
 
 	void setSpriteSheetNumber(int);
 
+	string idleSpriteString;
+	string notReadySpriteString;
+	string getIdleSpriteString();
+	string getNotReadySpriteString();
+	
+
 	int currentFrame;
 	int getNumAnimationFrames();
 	unsigned int getTimeBetweenAnimations();

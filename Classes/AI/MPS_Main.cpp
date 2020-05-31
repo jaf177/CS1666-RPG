@@ -26,20 +26,18 @@ void MPS_Main::readBEA() {
 	//*/
 }
 
-void MPS_Main::createTLMs(Enemy* Self, std::vector<Player*> Players, std::vector<Enemy*> Friends) {
+void MPS_Main::createTLMs(Enemy* Self, Player* playerone, std::vector<Enemy*> Friends) {
 	// create ASM
 	TaskLevelModifiers.push_back(new MPS_CSModifier((Character*)Self, MPS_Resource::tASM));
 	// create PSM
-	for (auto& p : Players) {
-		TaskLevelModifiers.push_back(new MPS_CSModifier((Character*)p, MPS_Resource::tPSM));
-	}
+		TaskLevelModifiers.push_back(new MPS_CSModifier((Character*)playerone, MPS_Resource::tPSM));
 	// create FSM
 	for (auto& f : Friends) {
 		TaskLevelModifiers.push_back(new MPS_CSModifier((Character*)f, MPS_Resource::tFSM));
 	}
 }
 
-void MPS_Main::createTasks(Enemy* Self, std::vector<Player*> Players, std::vector<Enemy*> Friends) {
+void MPS_Main::createTasks(Enemy* Self, Player* playerone, std::vector<Enemy*> Friends) {
 	for (int i = 0; i < MPS_Resource::tMPS_TASK_TYPE_NUM; i++) {
 		// for testing 
 		//std::cout << "Creating Tasks: " << i << " / " << MPS_Resource::tMPS_TASK_TYPE_NUM << std::endl;
@@ -59,9 +57,7 @@ void MPS_Main::createTasks(Enemy* Self, std::vector<Player*> Players, std::vecto
 		case tDISPEL_PLAYER_HPBUFF:
 		case tDEC_PLAYER_RE:
 		case tSTOP_PLAYER_ACT:
-			for (auto& p : Players) {
-				tar.push_back((Character*)p);
-			}
+				tar.push_back(playerone);
 			for (auto& tlm : TaskLevelModifiers) {
 				if (tlm->getType() == MPS_Resource::tPSM) ms.push_back(tlm);
 			}
@@ -109,12 +105,12 @@ void MPS_Main::findBestAction() {
 
 MPS_Main::MPS_Main() {}
 
-MPS_Main::MPS_Main(Enemy* Self, std::vector<Player*> Players, std::vector<Enemy*> Friends) {
+MPS_Main::MPS_Main(Enemy* Self, Player* playerone, std::vector<Enemy*> Friends) {
 	createAbilities(Self);
 	readTBP();
 	readBEA();
-	createTLMs(Self, Players, Friends);
-	createTasks(Self, Players, Friends);
+	createTLMs(Self, playerone, Friends);
+	createTasks(Self, playerone, Friends);
 	findBestAction();
 }
 

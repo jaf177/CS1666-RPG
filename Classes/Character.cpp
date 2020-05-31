@@ -38,8 +38,8 @@
 				somaticDamage = 0;
 			if (etherealDamage < 0)
 				etherealDamage = 0;
-			result = hpCurrent - somaticDamage - etherealDamage;
-			hpCurrent = result;
+			result = somaticDamage + etherealDamage;
+			hpCurrent -= result;
 			if (hpCurrent < 0)
 				hpCurrent = 0;
 			break;
@@ -158,6 +158,15 @@
 	bool Character::is_Enemy() { return isEnemy; }
 	int Character::getLevel() { return level; }
 	Attribute Character::getAttr(int i) { return attributes[i]; }
+
+	string Character::getIdleSpriteString()
+	{
+		return idleSpriteString;
+	}
+	string Character::getNotReadySpriteString()
+	{
+		return notReadySpriteString;
+	}
 
 	std::string Character::ptoString()
 	{

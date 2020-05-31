@@ -26,12 +26,12 @@ public:
 	void createAbilities(Enemy* Self);
 	void readTBP();
 	void readBEA();
-	void createTLMs(Enemy* Self, std::vector<Player*> Players, std::vector<Enemy*> Friends);
-	void createTasks(Enemy* Self, std::vector<Player*> Players, std::vector<Enemy*> Friends);
+	void createTLMs(Enemy* Self, Player*, std::vector<Enemy*> Friends);
+	void createTasks(Enemy* Self, Player*, std::vector<Enemy*> Friends);
 	void findBestAction();
 
 	/** constructors & desstructor **/
-	MPS_Main(Enemy* Self, std::vector<Player*> Players, std::vector<Enemy*> Friends);
+	MPS_Main(Enemy* Self, Player*, std::vector<Enemy*> Friends);
 	MPS_Main();
 	//~MPS_Main();
 

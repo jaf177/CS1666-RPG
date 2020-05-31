@@ -9,13 +9,25 @@
 		cooldown = AbilityResource::abilityCD[abilityID];
 		baseSomaticValue = AbilityResource::baseSomaticValue(abilityID);
 		baseEtherealValue = AbilityResource::baseEtherealValue(abilityID);
-		type = AbilityResource::ABILITY_TYPE(abilityID);
+		type = AbilityResource::ABILITY_TYPE(AbilityResource::abilityType[abilityID]);
 		IsAOE = AbilityResource::abilityIsAOE[abilityID];
 		MPSTaskType = AbilityResource::MPS_TASKTYPE[abilityID];
 	}
-	bool Ability::cmp(Ability a) {
+	bool Ability::cmp(Ability a)
+	{
 		if (a.name == name) return true;
 		else return false;
+	}
+	int Ability::str_to_abl(string s)
+	{
+		int index = 0;
+		for (auto i : AbilityResource::abilityNames)
+		{
+			if (i == s)
+				return index;
+			index++;
+		}
+		return -1;
 	}
 
 	bool Ability::cmp(int a) {

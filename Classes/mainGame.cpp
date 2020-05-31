@@ -55,7 +55,6 @@ const int OPTION_max_difficulty = 10;
 const int OPTION_min_difficulty = 1;
 int OPTION_difficulty = 5;
 bool OPTION_randomMaps = true;
-
 /*
 OPTIONS MENU
 */
@@ -328,7 +327,19 @@ void startMusic(string song, int volume)
 	Mix_PlayMusic(gMusic, -1);
 	Mix_VolumeMusic(adjustVolume(volume));
 }
+void animateCharacter(Character* i, SDL_Rect camera)
+{
+	if (SDL_GetTicks() - i->timeSinceLastAnimation > i->getTimeBetweenAnimations())
+	{
+		i->currentFrame = (i->currentFrame + 1) % i->getNumAnimationFrames();
+		i->timeSinceLastAnimation = SDL_GetTicks();
+	}
 
+	i->drawRectangle.x = i->currentFrame * i->getImageWidth();
+	i->rectangle.x = (int)i->xPosition - camera.x;
+	i->rectangle.y = (int)i->yPosition - camera.y;
+	SDL_RenderCopyEx(gRenderer, i->getSpriteTexture(), &i->drawRectangle, &i->rectangle, 0.0, nullptr, i->flip);
+}
 
 int playCredits() {
 	
@@ -398,48 +409,84 @@ void renderText(const char* text, SDL_Rect* rect, SDL_Color* color)
 	SDL_DestroyTexture(texture);
 }
 
-void animateCharacter(Character* i,SDL_Rect camera)
-{
-	if (SDL_GetTicks() - i->timeSinceLastAnimation > i->getTimeBetweenAnimations())
-	{
-			i->currentFrame = (i->currentFrame + 1) % i->getNumAnimationFrames();
-			i->timeSinceLastAnimation = SDL_GetTicks();
-	}
 
-	i->drawRectangle.x = i->currentFrame *i->getImageWidth();
-	i->rectangle.x = (int)i->xPosition - camera.x;
-	i->rectangle.y = (int)i->yPosition - camera.y;
-	SDL_RenderCopyEx(gRenderer, i->getSpriteTexture(), &i->drawRectangle, &i->rectangle, 0.0, nullptr, i->flip);
-}
 
 void gameStartTransition()
 {
-	LoadTexture background;
-	background.loadFromFile("Images/UI/CreateScreen/characterCreateV2NoButtons.png", gRenderer);
-	background.renderBackground(gRenderer);
-	SDL_RenderPresent(gRenderer);
-	SDL_Delay(1000);
-	background.renderBackground(gRenderer);
-	SDL_Delay(1000);
-	/*
-	SDL_Rect wholeS = { 0,0,720,720 };
-	SDL_Rect words = { 220,200,120,60 };
-	SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
-	SDL_RenderFillRect(gRenderer, &wholeS);
-	SDL_RenderPresent(gRenderer);
-	string level = "Loading Next Level";
-	SDL_Color TextColor = { 255, 255, 255, 0 };
-	renderText(level.c_str(), &words, &TextColor);
-	SDL_RenderPresent(gRenderer);
-	SDL_Rect wipe = { 180,240,20,20 };
-	SDL_SetRenderDrawColor(gRenderer, 0, 255, 0, 255);
-	for (; wipe.x < 540; wipe.x += 20)
-	{
+	SDL_Rect wipe = { 0,0,72,72 };
+	SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255); 
+	vector<SDL_Rect> allRectangles;
+	int direction = 0; // 0 -> Down , 1 -> Right , 2 -> Up , 3 -> Left
+	int bound_left = 0, bound_up = 0, bound_right = 648, bound_down = 648;
+	while (bound_left < bound_right || bound_up < bound_down)
+	{			
 		SDL_RenderFillRect(gRenderer, &wipe);
+		allRectangles.push_back(wipe);
 		SDL_RenderPresent(gRenderer);
-		SDL_Delay(100);
+		SDL_Delay(10);
+		switch (direction)
+		{
+		case 0:
+			if (wipe.y == bound_down)
+			{
+				direction++;
+				bound_left += 72;
+				wipe.x += 72;
+			}
+			else wipe.y += 72;
+			break;
+		case 1:
+			if (wipe.x == bound_right)
+			{
+				direction++;
+				bound_down -= 72;
+				wipe.y -= 72;
+			}
+			else wipe.x += 72;
+			break;
+		case 2:	
+			if (wipe.y == bound_up)
+			{
+				direction++;
+				bound_right -= 72;
+				wipe.x -= 72;
+			}
+			else wipe.y -= 72;
+			break;
+		case 3:
+			if (wipe.x == bound_left)
+			{
+				direction = 0;
+				bound_up += 72;
+				wipe.y += 72;
+			}
+			else wipe.x -= 72;
+			break;
+		}
 	}
-	*/
+	SDL_RenderFillRect(gRenderer, &wipe);
+	SDL_RenderPresent(gRenderer);
+	SDL_Delay(10);
+	allRectangles.push_back(wipe);
+	
+	for (int rectangles = allRectangles.size() - 1; rectangles >= 0; rectangles--)
+	{
+		SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
+		SDL_RenderClear(gRenderer);
+		SDL_RenderPresent(gRenderer);
+		SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);
+		for (int current = 0; current <= rectangles; current++)
+		{
+			//cout << allRectangles[current].x << " " << allRectangles[current].y << " " << allRectangles[current].h << " " << allRectangles[current].w << endl;
+			SDL_RenderFillRect(gRenderer, &allRectangles[current]);	
+		}
+		SDL_RenderPresent(gRenderer);
+		SDL_Delay(10);
+	}
+	SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
+	SDL_RenderClear(gRenderer);
+	SDL_RenderPresent(gRenderer);
+	SDL_Delay(10);
 }
 
 void combatTransition()
@@ -459,7 +506,8 @@ void combatTransition()
 	}
 	Mix_PauseMusic();
 }
-void levelTransition() {
+void levelTransition()
+{
 	SDL_Rect wholeS = { 0,0,720,720 };
 	SDL_Rect words = { 220,200,120,60 };
 	SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
@@ -479,7 +527,8 @@ void levelTransition() {
 	}
 }
 
-void EndTransition() {
+void EndTransition()
+{
 	startMusic("Audio/Song_PlayerVictory.wav", MIX_MAX_VOLUME);
 	SDL_Rect wholeS = { 0,0,720,720 };
 	SDL_Rect word1 = { 220,200,120,60 };
@@ -496,7 +545,8 @@ void EndTransition() {
 	SDL_Delay(200);
 }
 
-void ThankYouTransition() {
+void ThankYouTransition()
+{
 	SDL_Rect wholeS = { 0,0,720,720 };
 	SDL_Rect word1 = { 220,200,120,60 };
 	SDL_Rect word2 = { 220,280,120,60 };
@@ -1604,7 +1654,7 @@ int playGame()
 					if (check_collision(player1->rectangle, z->rectangle) && z->combatReady)
 					{
 						z->combatReady = false;
-						z->readyTimeLeft = 3000;
+						z->readyTimeLeft = 12000;
 						z->setSpriteSheetNumber(NOT_READY);
 						CollidingCluster = z;
 						allEnemies.erase(allEnemies.begin() + enemyToRemove);
@@ -1644,9 +1694,8 @@ int playGame()
 			while (combatStarted)
 			{
 				combatTransition();
-				//CombatManager cm;
-				//int combatResult = cm.combatMain(player1, CollidingCluster);
-				int combatResult = PLAYER_WINS;
+				CombatManager cm = CombatManager(player1,CollidingCluster);
+				int combatResult = cm.combatMain();
 				startMusic("Audio/Song_Overworld.wav", MIX_MAX_VOLUME / 8);
 				Mix_ResumeMusic();
 				timeSinceLastMovement = SDL_GetTicks();

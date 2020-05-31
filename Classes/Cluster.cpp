@@ -53,16 +53,24 @@ Cluster::Cluster(int enemiesInCluster, int difficulty)
 	for (int temp = 0;temp < enemiesInCluster;temp++)
 	{
 		string enemyType;
-		if (ourClusterType == "Brown Owl" || ourClusterType == "Black Owl")
+		Enemy* newEnemy;
+
+		if (ourClusterType == "Mix")
 		{
-			enemyType = ourClusterType;
+			enemyType = ALL_ENEMY_TYPES.at(rand() % ALL_ENEMY_TYPES.size());
 		}
-		else if (ourClusterType == "Mix")
+		else enemyType = ourClusterType;
+
+		if (enemyType == "Brown Owl")
 		{
-			enemyType = ALL_ENEMY_TYPES.at(rand()%ALL_ENEMY_TYPES.size());
+			newEnemy = new Enemy(enemyType, (rand() % 5) + 1, 1, (rand() % 6) + (difficulty / 2), (rand() % 5) + 1, 1);
 		}
-		//enemyType.push_back(char(temp + 65));
-		characterGroup.push_back(new Enemy(enemyType, difficulty));
+		else if (enemyType == "Black Owl")
+		{
+			newEnemy = new Enemy(enemyType, (rand() % 6) + (difficulty / 2), 1, (rand() % 5) + 1, (rand() % 6) + (difficulty / 2), 1);
+		}
+		characterGroup.push_back(newEnemy);
+
 	}
 	clusterSize = enemiesInCluster;
 	currentFrame = 0;

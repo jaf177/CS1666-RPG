@@ -19,13 +19,15 @@
 		std::vector<int> tempHeight(13);
 		std::vector<int> tempImages(13);
 
+		idleSpriteString = "Images/Player/Idle_Down.png";
+		notReadySpriteString = idleSpriteString;
 
-		tempSprite.at(NOT_READY) = "Images/Player/Idle_Down.png";
+		tempSprite.at(NOT_READY) = notReadySpriteString;
 		tempWidth.at(NOT_READY) = 96;
 		tempHeight.at(NOT_READY) = 132;
 		tempImages.at(NOT_READY) = 7;
 		
-		tempSprite.at(IDLE_DOWN) = "Images/Player/Idle_Down.png";
+		tempSprite.at(IDLE_DOWN) = idleSpriteString;
 		tempWidth.at(IDLE_DOWN) = 96;
 		tempHeight.at(IDLE_DOWN) = 132;
 		tempImages.at(IDLE_DOWN) = 7;

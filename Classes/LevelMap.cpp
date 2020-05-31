@@ -80,7 +80,7 @@ int LevelMap::Depth(int startX, int startY)
 					else
 					{
 						bool hasWalkableNeighbor = false;
-						int type_TL = rand() % 2, type_TR = rand() % 2, type_BL = rand() % 2, type_BR = rand() % 2;
+						int type_TL = 1, type_TR = 1, type_BL = 1, type_BR = 1;
 
 						// Look at 5 adjacent tiles to determine legal types
 						// Top, Left, Right, Bottom, and Bottom Right

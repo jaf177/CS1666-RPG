@@ -11,7 +11,7 @@ class CombatAI {
 protected:
 	Action BestAction;
 	Enemy* Self;
-	std::vector<Player*> Players;
+	Player* Playerone;
 	std::vector<Enemy*> Friends;
 	MPS_Main MPS;
 
@@ -20,7 +20,7 @@ public:
 
 	/** constructors **/
 	CombatAI();
-	CombatAI(Enemy* self, std::vector<Player*> players, std::vector<Enemy*> friends);
+	CombatAI(Enemy* self, Player* p1, std::vector<Enemy*> friends);
 
 	/** getters **/
 	Action getBestAction();

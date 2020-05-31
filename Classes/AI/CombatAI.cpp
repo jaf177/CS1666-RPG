@@ -2,15 +2,16 @@
 
 CombatAI::CombatAI() {}
 
-CombatAI::CombatAI(Enemy* self, std::vector<Player*> players, std::vector<Enemy*> friends) {
+CombatAI::CombatAI(Enemy* self, Player* p1, std::vector<Enemy*> friends)
+{
 	Self = self;
-	Players = players;
+	Playerone = p1;
 	Friends = friends;
 	BestAction = Action();
 }
 
 void CombatAI::BestActionByModifiedPriorityScore() {
-	MPS = MPS_Main(Self, Players, Friends);
+	MPS = MPS_Main(Self, Playerone, Friends);
 	BestAction = MPS.getBestAction();
 }
 

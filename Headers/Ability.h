@@ -28,6 +28,8 @@ public:
 	int getType();
 	int getMPSTaskType();
 
+	static int str_to_abl(string);
+
 	bool isAOE();
 
 	operator std::string();
