@@ -37,6 +37,7 @@ public:
 	int timer_currentTime;
 	int timer_playerReadyTime;
 	vector<int> timer_enemyReadyTime;
+	vector<string> messagesToAdd;
 
 	string target;
 	string initial_selectedOption;
@@ -53,12 +54,13 @@ public:
 	void outputEnemySingleTarget();
 	void outputEnemyMultipleTarget();
 	void outputAllySingleTarget();
+	void displayMessage(vector<string>);
 	void textAttributes(Character* c);
 	int takeActionByAI(Character* c, int); //Enemy takes action
 	bool isActiveCharacterEnemy();
 	void incrementBattleTimer();
 
-	void dialog_Introduction(int number);
+	void dialog_Introduction();
 	int dialog_Action(Character* c);
 
 	Mix_Chunk* gBSound = NULL;

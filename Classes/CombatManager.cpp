@@ -18,6 +18,22 @@ CombatManager::CombatManager(Player* p1, Cluster* cc)
 	playerone = p1;
 	enemyCluster = cc;
 }
+void CombatManager::displayMessage(vector<string> message)
+{
+	for (auto i : message)
+	{
+		m_combatDialogManager.AddMessage(i);
+	}
+	for(; m_combatDialogManager.GetEvents().size() > 0;)
+	{
+		m_combatGraphics.addTextsToRender(m_combatDialogManager.GetTextToRender());
+		
+//		m_combatDialogManager.Update(1.0f / 60.0f);
+//		m_combatGraphics.idle();
+//		SDL_Delay(60);
+
+	}
+}
 int CombatManager::checkCombatForActiveCharacters()
 {
 	if (playerStatus == DEAD)
@@ -102,14 +118,8 @@ int CombatManager::combatMain()
 	}
 	incrementBattleTimer();
 
-	int charImageX = 0;
-	int charImageY = 0;
 	int charImageW = playerone->getImageWidth();
-	int charImageH = playerone->getImageHeight();;
-	SDL_Rect characterBox = { 472, 225, charImageW, charImageH };
-	int charAnimationPixelShift = charImageW;
-	int delaysPerFrame = 0;
-	int frame = 0;
+	int charImageH = playerone->getImageHeight();
 	
 
 	/*
@@ -128,8 +138,6 @@ int CombatManager::combatMain()
 	TTF_Font* font = Helper::setFont("Fonts/Stacked pixel.ttf", 25);
 	SDL_Color txt_color = { 0,0,0,0 };
 
-	int bw = 100;
-	int bh = 50;
 	initialText = true;
 	printed = false; // for text combat ui
 
@@ -142,6 +150,7 @@ int CombatManager::combatMain()
 	int player = m_combatGraphics.genQuadTexture(charImageW, charImageH / 1.5, "Images/Player/Idle_Down.png", "player", 0, 7);
 	m_combatGraphics.translateObjectByPixel(player, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 3, 0.0);
 	m_combatGraphics.setIdleAnimationType(player, 1);
+
 	//Create Enemy with Player Texture, translate it, retexture it to owl, then set it to animate the sprite
 	vector<int> enemy(enemyCluster->clusterSize);
 	for (int i = 0; i < enemyCluster->clusterSize; i++)
@@ -156,34 +165,23 @@ int CombatManager::combatMain()
 
 	// Set up the combat dialog manager
 	m_combatDialogManager = CombatDialogManager();
-	m_combatDialogManager.SetTimePerCharacter(0.005f);
-	m_combatDialogManager.SetWaitTime((float).2);
+	m_combatDialogManager.SetTimePerCharacter(0.006f);
+	m_combatDialogManager.SetWaitTime((float).3);
 	m_combatDialogManager.SetColor(glm::vec4(0.0, 0.0, 0.0, 1.0));
 	m_combatDialogManager.SetSelectionColor(glm::vec4(0.0, 1.0, 0.0, 1.0));
 	m_combatDialogManager.SetFont(ResourceManager::getFontData("stacked_pixel"));
 
 	m_combatGraphics.display();
 	m_combatGraphics.rotateRandom();
-
+	Uint32 timeSinceLastAnimation = SDL_GetTicks();
 
 	int allPlayers = 0;
 	while (inCombat)
 	{
-		//printf("%d", turnOrder);
-		// Update the combat dialog manager
-		// We need to know the time between frames so we can update things accordingly. We'll just pass in a set number for now. 
-		// In the future you should pass in the update delta time.
-
-
-		m_combatDialogManager.Update(1.0f / 60.0f);
-
-		// Add the renderable texts generated from the combat dialog manager to the renderer
+		m_combatDialogManager.Update((SDL_GetTicks() - timeSinceLastAnimation) / 4000.0);
 		m_combatGraphics.addTextsToRender(m_combatDialogManager.GetTextToRender());
-		// This isnt a great way to idle with 3d graphics, you'll run into a host of issues.
-		// You should only be updating the screen every 1/60 of a second (for a 60fps game)
-		// and updating and interpolating based on the delta time
-		// You can keep this for now but it will probably have to change down the road
 		m_combatGraphics.idle();
+		timeSinceLastAnimation = SDL_GetTicks();
 		while (SDL_PollEvent(&e))
 		{
 
@@ -233,13 +231,34 @@ int CombatManager::combatMain()
 		}
 		if (currentDialogOption == 0)
 		{
-			if(!printed)
-			dialog_Introduction(enemyCluster->characterGroup.size()); // text combat ui initialization
+			if (initialText)
+			{
+				string text = "You've encountered ";
+				text.append(std::to_string(enemyCluster->characterGroup.size()));
+				text.append(" enem");
+				if (enemyCluster->characterGroup.size() > 1)
+					text.append("ies.");
+				else text.append("y.");
+				messagesToAdd.push_back(text);
+				m_combatDialogManager.ClearEvents();
+				displayMessage(messagesToAdd);
+				messagesToAdd.clear();
+				initialText = false;
+			}
 			bool enemyTurn = isActiveCharacterEnemy();
 			if (enemyTurn)
+			{
+				messagesToAdd.push_back("It's An ENEMY's Turn");
+				m_combatDialogManager.ClearEvents();
+				displayMessage(messagesToAdd);
+				messagesToAdd.clear();
 				currentDialogOption = 6;
+			}
+				
 			else
 			{
+				if (!printed)
+					dialog_Introduction(); // text combat ui initialization
 				if (e.key.keysym.sym == SDLK_RETURN)
 				{
 					std::queue<CombatDialogManager::SelectionEvent> events = m_combatDialogManager.GetEvents();
@@ -254,27 +273,33 @@ int CombatManager::combatMain()
 						initial_selectedOption = event.options[event.selectedOption];
 						stringstream ss;
 						ss << "You selected " << initial_selectedOption;
-						m_combatDialogManager.AddMessage(ss.str());
+						messagesToAdd.push_back(ss.str());
+						m_combatDialogManager.ClearEvents();
+						displayMessage(messagesToAdd);
+						messagesToAdd.clear();
 						if (initial_selectedOption == "Escape")
 						{
 							stringstream ss;
-							ss << "YOU ESCAPED!";
-							m_combatDialogManager.AddMessage(ss.str());
-							playerone->xPosition = player_xpos;
-							playerone->yPosition = player_ypos;
-							for (int i = 0; i < 60; i++)
+							ss << "YOU ESCAPED.";
+							messagesToAdd.push_back(ss.str());
+							m_combatDialogManager.ClearEvents();
+							displayMessage(messagesToAdd);
+							messagesToAdd.clear();
+							for (int i = 0; i < 50; i++)
 							{
 								SDL_Delay(60);
-								m_combatDialogManager.Update(1.0f / 60.0f);
+								m_combatDialogManager.Update((SDL_GetTicks() - timeSinceLastAnimation) / 4000.0);
 								m_combatGraphics.addTextsToRender(m_combatDialogManager.GetTextToRender());
 								m_combatGraphics.idle();
+								timeSinceLastAnimation = SDL_GetTicks();
 							}
+							playerone->xPosition = player_xpos;
+							playerone->yPosition = player_ypos;
 							Mix_FreeChunk(gBSound);
 							m_combatGraphics.clean();
 							return PLAYER_ESCAPES;
 						}
 						else currentDialogOption++;
-						m_combatDialogManager.ClearEvents();
 					}
 				}
 			}
@@ -297,14 +322,16 @@ int CombatManager::combatMain()
 				atk_selectedOption = event.options[event.selectedOption];
 				stringstream ss;
 				ss << "You selected " << atk_selectedOption;
-				m_combatDialogManager.AddMessage(ss.str());
+				messagesToAdd.push_back(ss.str());
+				m_combatDialogManager.ClearEvents();
+				displayMessage(messagesToAdd);
+				messagesToAdd.clear();
 				if (atk_selectedOption == "Back")
 				{
 					printed = false;
 					currentDialogOption = 0;
 				}
 				else currentDialogOption++;
-				m_combatDialogManager.ClearEvents();
 			}
 		}
 		else if (currentDialogOption == 3) // DISPLAYS Attack Selection
@@ -352,14 +379,17 @@ int CombatManager::combatMain()
 					target = target_selectedOption;
 					currentDialogOption++;
 				}
-				m_combatDialogManager.AddMessage(ss.str());
+				messagesToAdd.push_back(ss.str());
 				m_combatDialogManager.ClearEvents();
+				displayMessage(messagesToAdd);
+				messagesToAdd.clear();
 			}
 		}
 		else if (currentDialogOption == 5)
 		{
 			int targetIndex;
-			stringstream ss;
+			stringstream ss_first;
+			stringstream ss_second;
 			for (int inClusterIndex = 0; inClusterIndex < enemyCluster->characterGroup.size(); inClusterIndex++)
 			{
 				if (target == "All Enemies" || enemyCluster->characterGroup.at(inClusterIndex)->getName() == target)
@@ -380,9 +410,10 @@ int CombatManager::combatMain()
 						m_combatGraphics.setAnimationMultiStep(player, 2, multiMotion, maxFrames);
 						for (int i = 0; i < 40; i++) {
 							SDL_Delay(60);
-							m_combatDialogManager.Update(1.0f / 60.0f);
+							m_combatDialogManager.Update((SDL_GetTicks() - timeSinceLastAnimation) / 4000.0);
 							m_combatGraphics.addTextsToRender(m_combatDialogManager.GetTextToRender());
 							m_combatGraphics.idle();
+							timeSinceLastAnimation = SDL_GetTicks();
 						}
 						m_combatGraphics.setIdleAnimationType(player, 1);
 					}
@@ -400,9 +431,10 @@ int CombatManager::combatMain()
 						for (int i = 0; i < 15; i++)
 						{
 							SDL_Delay(60);
-							m_combatDialogManager.Update(1.0f / 60.0f);
+							m_combatDialogManager.Update((SDL_GetTicks() - timeSinceLastAnimation) / 4000.0);
 							m_combatGraphics.addTextsToRender(m_combatDialogManager.GetTextToRender());
 							m_combatGraphics.idle();
+							timeSinceLastAnimation = SDL_GetTicks();
 						}
 					}
 					else if (atk_selectedOption == "Smite") {
@@ -417,13 +449,14 @@ int CombatManager::combatMain()
 						m_combatGraphics.setAnimation(attack, 2);
 						m_combatGraphics.setAnimationFrameMax(attack, 90);
 						m_combatGraphics.setAnimationMotion(attack, motion);
-						for (int i = 0; i < 90; i++) {
+						for (int i = 0; i < 92; i++)
+						{
 							SDL_Delay(60);
-							m_combatDialogManager.Update(1.0f / 60.0f);
+							m_combatDialogManager.Update((SDL_GetTicks() - timeSinceLastAnimation) / 4000.0);
 							m_combatGraphics.addTextsToRender(m_combatDialogManager.GetTextToRender());
 							m_combatGraphics.idle();
+							timeSinceLastAnimation = SDL_GetTicks();
 						}
-
 					}
 					else if (atk_selectedOption == "Arrow Shot") {
 						//std::cout << "Arrow Reached";
@@ -438,13 +471,19 @@ int CombatManager::combatMain()
 						for (int i = 0; i < 8; i++)
 						{
 							SDL_Delay(60);
-							m_combatDialogManager.Update(1.0f / 60.0f);
+							m_combatDialogManager.Update((SDL_GetTicks() - timeSinceLastAnimation) / 4000.0);
 							m_combatGraphics.addTextsToRender(m_combatDialogManager.GetTextToRender());
 							m_combatGraphics.idle();
+							timeSinceLastAnimation = SDL_GetTicks();
 						}
 					}
-					ss << "You damage " << target << " by " << result << " HP!" << " " << target << " now has only " << enemyCluster->characterGroup.at(targetIndex)->getHPCurrent() << " HP left.";
-					m_combatDialogManager.AddMessage(ss.str());
+					ss_first << "Your attack deals " <<result<<" damage to "<< target << ".";
+					ss_second << target << " now has only " << enemyCluster->characterGroup.at(targetIndex)->getHPCurrent() << " HP left.";
+					messagesToAdd.push_back(ss_first.str());
+					messagesToAdd.push_back(ss_second.str());
+					m_combatDialogManager.ClearEvents();
+					displayMessage(messagesToAdd);
+					messagesToAdd.clear();
 					if (enemyCluster->characterGroup.at(targetIndex)->getHPCurrent() == 0)
 					{
 						m_combatGraphics.retextureQuad(enemy[targetIndex], enemyCluster->characterGroup.at(targetIndex)->getNotReadySpriteString().c_str(), "DeadOwl");
@@ -461,7 +500,6 @@ int CombatManager::combatMain()
 			{
 				if (timer_enemyReadyTime[enemyIndex] <= timer_currentTime && enemyStatus[enemyIndex] == IN_COMBAT )
 				{
-						stringstream ss;
 						takeActionByAI(enemyCluster->characterGroup.at(enemyIndex), enemyIndex);
 						break;
 				}
@@ -471,51 +509,39 @@ int CombatManager::combatMain()
 		}
 		else if (currentDialogOption == 7) // CHECK FOR END CONDITIONS
 		{
-			stringstream ss;
+			stringstream ss_first;
 			switch (int result_temp = checkCombatForActiveCharacters())
 			{
 			case IN_COMBAT:
 				break;
 			case PLAYER_WINS:
-				ss << "You Have Defeated All Enemies!";
+				ss_first << "You Have Defeated All Enemies.";
 				playerone->xPosition = player_xpos;
 				playerone->yPosition = player_ypos;
-				m_combatDialogManager.AddMessage(ss.str());
-				for (int i = 0; i < 60; i++)
-				{
-					SDL_Delay(60);
-					m_combatDialogManager.Update(1.0f / 60.0f);
-					m_combatGraphics.addTextsToRender(m_combatDialogManager.GetTextToRender());
-					m_combatGraphics.idle();
-				}
+				messagesToAdd.push_back(ss_first.str());
+				m_combatDialogManager.ClearEvents();
+				displayMessage(messagesToAdd);
+				messagesToAdd.clear();
 				m_combatGraphics.clean();
 				Mix_FreeChunk(gBSound);
 				return result_temp;
 			case ENEMY_WINS:
-				ss << "You Have Been Defeated!";
-				m_combatDialogManager.AddMessage(ss.str());
-				for (int i = 0; i < 60; i++)
-				{
-					SDL_Delay(60);
-					m_combatDialogManager.Update(1.0f / 60.0f);
-					m_combatGraphics.addTextsToRender(m_combatDialogManager.GetTextToRender());
-					m_combatGraphics.idle();
-				}
+				ss_first << "You Have Been Defeated.";
+				messagesToAdd.push_back(ss_first.str());
+				m_combatDialogManager.ClearEvents();
+				displayMessage(messagesToAdd);
+				messagesToAdd.clear();
 				Mix_FreeChunk(gBSound);
 				m_combatGraphics.clean();
 				return result_temp;
 			case ENEMY_ESCAPES:
-				ss << "The Enemies Escaped!";
+				ss_first << "The Enemies Escaped.";
 				playerone->xPosition = player_xpos;
 				playerone->yPosition = player_ypos;
-				m_combatDialogManager.AddMessage(ss.str());
-				for (int i = 0; i < 60; i++)
-				{
-					SDL_Delay(60);
-					m_combatDialogManager.Update(1.0f / 60.0f);
-					m_combatGraphics.addTextsToRender(m_combatDialogManager.GetTextToRender());
-					m_combatGraphics.idle();
-				}
+				messagesToAdd.push_back(ss_first.str());
+				m_combatDialogManager.ClearEvents();
+				displayMessage(messagesToAdd);
+				messagesToAdd.clear();
 				m_combatGraphics.clean();
 				Mix_FreeChunk(gBSound);
 				return result_temp;
@@ -539,19 +565,13 @@ int CombatManager::combatMain()
 	return -100;
 
 }
-void CombatManager::dialog_Introduction(int number)
+void CombatManager::dialog_Introduction()
 {
-	if (initialText)
-	{
-		string text = "You've encountered ";
-		text.append(std::to_string(number));
-		text.append(" enem");
-		if (number > 1)
-			text.append("ies!");
-		else text.append("y!");
-		m_combatDialogManager.AddMessage(text);
-		initialText = false;
-	}
+	messagesToAdd.push_back("It's YOUR Turn!");
+	m_combatDialogManager.ClearEvents();
+	displayMessage(messagesToAdd);
+	messagesToAdd.clear();
+
 	std::vector<std::string> options;
 	options.push_back("Fight");
 	options.push_back("Escape");
@@ -567,16 +587,20 @@ int CombatManager::dialog_Action(Character* c)
 		std::vector<Ability> temp = c->getAbilities();
 		int result = playerone->beingTarget(&temp[0]);
 		stringstream ss;
-		ss << c->getName() << " deals " << result << " damage!" << " You have " << playerone->getHPCurrent() << " HP left.";
-		m_combatDialogManager.AddMessage(ss.str());
-
+		ss << c->getName() << " deals " << result << " damage." << " You have " << playerone->getHPCurrent() << " HP left.";
+		messagesToAdd.push_back(ss.str());
+		m_combatDialogManager.ClearEvents();
+		displayMessage(messagesToAdd);
+		messagesToAdd.clear();
 		if (playerone->getHPCurrent() == 0)
 		{
-			m_combatDialogManager.AddMessage("Why are you so weak? You are dead, dude!");
+			messagesToAdd.push_back("Why are you so weak? You are dead, dude.");
+			m_combatDialogManager.ClearEvents();
+			displayMessage(messagesToAdd);
+			messagesToAdd.clear();
 			inCombat = false;
 			return ENEMY_WINS;
 		}
-		m_combatDialogManager.ClearEvents();
 	}
 	else
 	{
@@ -590,19 +614,20 @@ int CombatManager::dialog_Action(Character* c)
 			events.pop();
 			stringstream ss;
 			ss << "You selected " << event.options[event.selectedOption];
-			m_combatDialogManager.AddMessage(ss.str());
+			messagesToAdd.push_back(ss.str());
+			m_combatDialogManager.ClearEvents();
+			displayMessage(messagesToAdd);
+			messagesToAdd.clear();
 			if (event.options[event.selectedOption] == "Escape")
 				return PLAYER_ESCAPES;
 			else textAttributes(c);
 			currentDialogOption++;
-			m_combatDialogManager.ClearEvents();
 		}		
 	}
 	return IN_COMBAT;
 }
 void CombatManager::textAttributes(Character* c)
 {
-	//m_combatDialogManager.ClearEvents();
 	std::vector<std::string> options;
 	std::vector<Ability> abil_temp = c->getAbilities(); // get ability lists of the character
 	std::vector<int> helper; // stores relative index of the abilites within the same attribute category
@@ -643,76 +668,83 @@ int CombatManager::takeActionByAI(Character* active_enemy, int enemy_ID)
 				case tSUMMON:
 				case tDEFENSE:
 				case tESCAPE:
-					m_combatDialogManager.AddMessage(active_enemy->getName() + " uses " + AbilityResource::abilityNames[abil->getName()]);
+					messagesToAdd.push_back(active_enemy->getName() + " uses " + AbilityResource::abilityNames[abil->getName()]);
+					m_combatDialogManager.ClearEvents();
+					displayMessage(messagesToAdd);
+					messagesToAdd.clear();
 					break;
 				default:
-					m_combatDialogManager.AddMessage(active_enemy->getName() + " uses " + AbilityResource::abilityNames[abil->getName()] + " to " + tars[i]->getName());
+					messagesToAdd.push_back(active_enemy->getName() + " uses " + AbilityResource::abilityNames[abil->getName()] + " to " + tars[i]->getName());
+					m_combatDialogManager.ClearEvents();
+					displayMessage(messagesToAdd);
+					messagesToAdd.clear();
 					break;
 				}
-				m_combatDialogManager.ClearEvents();
-				// display text
-				m_combatDialogManager.Update(1.0f / 60.0f);
-				m_combatGraphics.addTextsToRender(m_combatDialogManager.GetTextToRender());
-				m_combatGraphics.idle();
-				SDL_Delay(60);
-				// output impact
 				stringstream stmp;
-				switch (abil->getType()) {
+				switch (abil->getType())
+				{
 				case AbilityResource::tDAMAGE:
-					stmp << tars[i]->getName() + "'s HP is decreased by " + std::to_string(result) + "! ";
+					stmp << tars[i]->getName() + "'s HP is decreased by " + std::to_string(result) + ".";
 					stmp << tars[i]->getName() + " now has " + std::to_string(tars[i]->getHPCurrent()) + " HP left.";
-					m_combatDialogManager.AddMessage(stmp.str());
+					messagesToAdd.push_back(stmp.str());
+					m_combatDialogManager.ClearEvents();
+					displayMessage(messagesToAdd);
+					messagesToAdd.clear();
 					break;
 				case AbilityResource::tSUMMON:
 					stmp << "NLF4 is lecturing, can't make it.";
-					m_combatDialogManager.AddMessage(stmp.str());
+					messagesToAdd.push_back(stmp.str());
+					m_combatDialogManager.ClearEvents();
+					displayMessage(messagesToAdd);
+					messagesToAdd.clear();
 					break;
 				case AbilityResource::tESCAPE:
 					if (result == -2)
 					{
 						enemyStatus[enemy_ID] = ENEMY_ESCAPES;
-						stmp << active_enemy->getName() + " has escaped from combat!";
-						m_combatDialogManager.AddMessage(stmp.str());
+						stmp << active_enemy->getName() + " has escaped from combat.";
+						messagesToAdd.push_back(stmp.str());
+						m_combatDialogManager.ClearEvents();
+						displayMessage(messagesToAdd);
+						messagesToAdd.clear();
 					}
 					else
 					{
 						stmp << active_enemy->getName() + " tried to escape but failed.";
-						m_combatDialogManager.AddMessage(stmp.str());
+						messagesToAdd.push_back(stmp.str());
+						m_combatDialogManager.ClearEvents();
+						displayMessage(messagesToAdd);
+						messagesToAdd.clear();
 					}
 					break;
 				case AbilityResource::tDEFENSE:
 					// display text before returning
 					stmp << active_enemy->getName() + "'s Energy Regeneration for next round will be increased.";
-					m_combatDialogManager.AddMessage(stmp.str());
-					m_combatDialogManager.Update(1.0f / 60.0f);
-					m_combatGraphics.addTextsToRender(m_combatDialogManager.GetTextToRender());
-					m_combatGraphics.idle();
-					SDL_Delay(60);
+					messagesToAdd.push_back(stmp.str());
 					m_combatDialogManager.ClearEvents();
+					displayMessage(messagesToAdd);
+					messagesToAdd.clear();
 					return IN_COMBAT;
 					break;
 				case AbilityResource::tHEALING:
-					stmp << tars[i]->getName() + "'s HP is increased by " + std::to_string(result) + "! ";
+					stmp << tars[i]->getName() + "'s HP is increased by " + std::to_string(result) + ".";
 					stmp << tars[i]->getName() + " now has " + std::to_string(tars[i]->getHPCurrent()) + " HP left.";
-					m_combatDialogManager.AddMessage(stmp.str());
-					SDL_Delay(60);
+					messagesToAdd.push_back(stmp.str());
+					m_combatDialogManager.ClearEvents();
+					displayMessage(messagesToAdd);
+					messagesToAdd.clear();
 					break;
 				default:
 					break;
 				}
-				m_combatDialogManager.Update(1.0f / 60.0f);
-				m_combatGraphics.addTextsToRender(m_combatDialogManager.GetTextToRender());
-				m_combatGraphics.idle();
-
 				// check if the target is dead
 				if (tars[i]->getHPCurrent() == 0)
 				{
-					stmp << tars[i]->getName() + " is dead!";
-					m_combatDialogManager.AddMessage(stmp.str());
-					m_combatDialogManager.Update(1.0f / 60.0f);
-					m_combatGraphics.addTextsToRender(m_combatDialogManager.GetTextToRender());
-					m_combatGraphics.idle();
-					SDL_Delay(60);
+					stmp << tars[i]->getName() + " is dead.";
+					messagesToAdd.push_back(stmp.str());
+					m_combatDialogManager.ClearEvents();
+					displayMessage(messagesToAdd);
+					messagesToAdd.clear();
 
 					if (!tars[i]->is_Enemy())
 						playerStatus = DEAD;
@@ -721,18 +753,14 @@ int CombatManager::takeActionByAI(Character* active_enemy, int enemy_ID)
 					int temp_status = checkCombatForActiveCharacters();
 					if (temp_status != IN_COMBAT)
 					{
-						m_combatDialogManager.ClearEvents();
 						return temp_status;
 					}
 				}
 			}
-		m_combatDialogManager.ClearEvents();
 	return IN_COMBAT;
 }
 void CombatManager::outputEnemySingleTarget()
 {
-	m_combatDialogManager.ClearEvents();
-
 	std::vector<std::string> options;
 	for (int j = 0; j < enemyCluster->characterGroup.size(); j++)
 	{
@@ -745,8 +773,6 @@ void CombatManager::outputEnemySingleTarget()
 }
 void CombatManager::outputEnemyMultipleTarget()
 {
-	m_combatDialogManager.ClearEvents();
-
 	std::vector<std::string> options;
 	options.push_back("All Enemies");
 	options.push_back("Back");
@@ -754,8 +780,6 @@ void CombatManager::outputEnemyMultipleTarget()
 }
 void CombatManager::outputAllySingleTarget()
 {
-	m_combatDialogManager.ClearEvents();
-
 	std::vector<std::string> options;
 	options.push_back(playerone->getName());
 	options.push_back("Back");
@@ -807,7 +831,7 @@ int CombatManager::updateStatus()
 	for (int i = 0; i < participants.size(); i++)
 	{
 		Character* c = participants[i];
-		if (c->getHPCurrent() <= 0 || ParticipantsStatus[i] != IN_COMBAT)
+		if (c->getHPCurrent() <= 0 || ParticipantsStatus[i] .= IN_COMBAT)
 			continue;
 		c->ailmAffect();
 		if (c->getHPCurrent() <= 0)

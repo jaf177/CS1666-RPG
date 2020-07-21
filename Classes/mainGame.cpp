@@ -1695,6 +1695,8 @@ int playGame()
 			{
 				combatTransition();
 				CombatManager cm = CombatManager(player1,CollidingCluster);
+				startMusic("Audio/Song_InCombat.wav", MIX_MAX_VOLUME / 8);
+				Mix_ResumeMusic();
 				int combatResult = cm.combatMain();
 				startMusic("Audio/Song_Overworld.wav", MIX_MAX_VOLUME / 8);
 				Mix_ResumeMusic();

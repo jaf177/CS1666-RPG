@@ -146,7 +146,15 @@ std::vector<RenderableText> CombatDialogManager::GetTextToRender()
 	{
 		// Offset for single messages
 		glm::vec2 offsetPos(topLeftCorner.x, topLeftCorner.y - yOffsetForSingleMessage);
-		textToRender.push_back(RenderableText(d.GetCurrentlyDisplayedText(), offsetPos, 0.5f, d.GetTextColor(), *m_currentFont));
+		std::string tokenizedMessage = d.GetCurrentlyDisplayedText();
+		
+		while (tokenizedMessage.find(".") <= tokenizedMessage.size() && tokenizedMessage.find(".") > 0)
+		{
+			textToRender.push_back(RenderableText(tokenizedMessage.substr(0, tokenizedMessage.find(".") + 1), offsetPos, 0.5f, d.GetTextColor(), *m_currentFont));
+			tokenizedMessage.erase(0, tokenizedMessage.find(".") + 1);
+			offsetPos.y -= optionRowSpacing;
+		}
+		textToRender.push_back(RenderableText(tokenizedMessage, offsetPos, 0.5f, d.GetTextColor(), *m_currentFont));
 		return textToRender;
 	}
 

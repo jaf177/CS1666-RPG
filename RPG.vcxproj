@@ -202,6 +202,7 @@
     <ClCompile Include="Classes\UI\CombatDialogManager.cpp" />
     <ClCompile Include="Classes\UI\DialogMessage.cpp" />
     <ClCompile Include="Classes\UI\TextRenderer.cpp" />
+    <ClCompile Include="CombatUI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Images\Credits\bmbCredits.jpg" />
@@ -229,6 +230,7 @@
     <Image Include="Images\Tiles\singleGrass5.png" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CombatUI.h" />
     <ClInclude Include="Headers\Abilities\AbilityResource.h" />
     <ClInclude Include="Headers\Ability.h" />
     <ClInclude Include="Headers\AI\Action.h" />

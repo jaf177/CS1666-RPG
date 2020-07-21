@@ -209,6 +209,9 @@
     <ClCompile Include="Classes\LevelMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CombatUI.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Headers\Attribute.h">
@@ -354,6 +357,9 @@
     </ClInclude>
     <ClInclude Include="Headers\LevelMap.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CombatUI.h">
+      <Filter>Header Files\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
